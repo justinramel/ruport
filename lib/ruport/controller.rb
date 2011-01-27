@@ -429,13 +429,14 @@ class Ruport::Controller
     # Please see the examples/ directory for custom controller examples, because
     # this is not nearly as complicated as it sounds in most cases.
     def render(format, add_options=nil)
-      rend = build(format, add_options) { |r|
-          yield(r) if block_given?   
+      controller = build(format, add_options) { |r|
+        yield(r) if block_given?   
         r.setup if r.respond_to? :setup
       }  
-      rend.run
-      rend.formatter.save_output(rend.options.file) if rend.options.file
-      return rend.formatter.output
+
+      controller.run
+      controller.save_output
+      return controller.output
     end
 
     # Allows you to set class-wide default options.
@@ -519,7 +520,16 @@ class Ruport::Controller
   def run
     _run_
   end
-  
+ 
+  def save_output
+    formatter.save_output(options.file) if options.file
+  end    
+
+  def output
+    formatter.output
+  end
+
+
   # If an IO object is given, Formatter#output will use it instead of 
   # the default String.  For Ruport's core controllers, we technically
   # can use any object that supports the << method, but it's meant
@@ -576,6 +586,8 @@ class Ruport::Controller
 
     finalize self.class.final_stage if self.class.final_stage
     maybe :finalize
+
+    return formatter.output
   end  
   
   def execute_stages
