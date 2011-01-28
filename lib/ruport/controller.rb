@@ -115,6 +115,10 @@ class Ruport::Controller
       def rendering_options
         @rendering_options
       end
+
+      def merge(options)
+        rendering_options.merge(options)
+      end 
        
       # Shortcut for renders_with(Ruport::Controller::Table), you
       # may wish to override this if you build a custom table controller.
@@ -165,19 +169,22 @@ class Ruport::Controller
     #  Example:
     #
     #    table.as(:csv, :show_table_headers => false)
-    def as(format,options={})
-      raise ControllerNotSetError unless self.class.controller
-      unless self.class.controller.formats.include?(format)
-        raise UnknownFormatError
-      end
-      self.class.controller.render(format,
-        self.class.rendering_options.merge(options)) do |rend|
-          rend.data =
-            respond_to?(:renderable_data) ? renderable_data(format) : self
-          yield(rend) if block_given?  
+    def as(format,options={}) 
+      controller = self.class.controller
+
+      raise ControllerNotSetError unless controller
+      raise UnknownFormatError unless controller.known_format?(format)
+
+      options = self.class.merge(options)
+
+      controller.render(format, options) do |rend|
+        rend.data =
+          respond_to?(:renderable_data) ? renderable_data(format) : self
+
+        yield(rend) if block_given?  
       end
     end      
-    
+
     def save_as(file,options={})
       file =~ /.*\.(.*)/    
       format = $1
@@ -415,6 +422,10 @@ class Ruport::Controller
     def formats
       @formats ||= {}
     end
+
+    def known_format?(format)
+      formats.include?(format)
+    end
     
     # Builds up a controller object, looks up the appropriate formatter,
     # sets the data and options, and then does the following process:
@@ -528,6 +539,7 @@ class Ruport::Controller
   def output
     formatter.output
   end
+
 
 
   # If an IO object is given, Formatter#output will use it instead of 
