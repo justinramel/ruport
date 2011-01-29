@@ -295,7 +295,7 @@ module Ruport::Data
       }   
     end
 
-    # Uses Ruport's built-in text formatter to render this Grouping
+    # Uses Ruport's built-in text format to render this Grouping
     # 
     # Example:
     # 

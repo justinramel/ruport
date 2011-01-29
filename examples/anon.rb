@@ -1,17 +1,17 @@
 # Demonstrates building a parent report which provides additional 'built in'
-# formats, allowing anonymous formatter support to use the simple interface
-# rather than the :format => FormatterClass approach.
+# formats, allowing anonymous format support to use the simple interface
+# rather than the :format => FormatClass approach.
 
 require "ruport"
 module FooCorp
   class Report < Ruport::Report
     def self.built_in_formats
-      super.merge(:xml => FooCorp::Formatter::XML)
+      super.merge(:xml => FooCorp::Format::XML)
     end
   end
 
-  class Formatter
-    class XML < Ruport::Formatter
+  class Format
+    class XML < Ruport::Format
 
       def xmlify(stuff)
         output << "Wouldn't you like to see #{stuff} in XML?"
@@ -22,13 +22,13 @@ module FooCorp
   class MyReport < FooCorp::Report
     stage :foo
 
-    formatter :xml do
+    format :xml do
       build :foo do
         xmlify "Red Snapper"
       end
     end
 
-    formatter :text do
+    format :text do
       build :foo do
         output << "Red Snapper"
       end

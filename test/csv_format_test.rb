@@ -11,7 +11,7 @@ end
 class TestRenderCSVTable < Test::Unit::TestCase
   
   def setup
-    Ruport::Formatter::Template.create(:simple) do |format|
+    Ruport::Format::Template.create(:simple) do |format|
       format.table = {
         :show_headings  => false
       }
@@ -49,17 +49,17 @@ class TestRenderCSVTable < Test::Unit::TestCase
   end
      
   def test_render_with_template
-    formatter = Ruport::Formatter::CSV.new
-    formatter.options = Ruport::Report::Options.new
-    formatter.options.template = :simple
-    formatter.apply_template
+    format = Ruport::Format::CSV.new
+    format.options = Ruport::Report::Options.new
+    format.options.template = :simple
+    format.apply_template
     
-    assert_equal false, formatter.options.show_table_headers
+    assert_equal false, format.options.show_table_headers
 
-    assert_equal :justified, formatter.options.style
-    assert_equal false, formatter.options.show_group_headers
+    assert_equal :justified, format.options.style
+    assert_equal false, format.options.show_group_headers
     
-    assert_equal ":", formatter.options.format_options[:col_sep]
+    assert_equal ":", format.options.format_options[:col_sep]
   end
 
   def test_options_hashes_override_template

@@ -1,6 +1,6 @@
 # Ruport : Extensible Reporting System                                
 #
-# formatter/csv.rb provides csv formatting for Ruport.
+# format/csv.rb provides csv formatting for Ruport.
 #     
 # Original code dates back to the earliest versions of Ruport in August 2005
 # Extended over time, with much of the existing code being added around
@@ -13,7 +13,7 @@
 #
 module Ruport
 
-  # This formatter implements the CSV format for Ruport's Row, Table, Group
+  # This format implements the CSV format for Ruport's Row, Table, Group
   # and Grouping reports.  It is a light wrapper around
   # James Edward Gray II's FasterCSV.
   #
@@ -23,13 +23,13 @@ module Ruport
   #
   # <tt>:format_options</tt> A hash of FasterCSV options  
   #
-  # <tt>:formatter</tt> An existing FasterCSV object to write to
+  # <tt>:format</tt> An existing FasterCSV object to write to
   #
   # <tt>:show_table_headers</tt> True by default
   #
   # <tt>:show_group_headers</tt> True by default
   #
-  class Formatter::CSV < Formatter
+  class Format::CSV < Format
     
     renders :csv, :for => [ Report::Row,   Report::Table,
                             Report::Group, Report::Grouping ]
@@ -55,7 +55,7 @@ module Ruport
     # options.
     #
     def csv_writer
-      @csv_writer ||= options.formatter ||
+      @csv_writer ||= options.format ||
         FCSV(output, options.format_options || {})
     end
 
@@ -67,7 +67,7 @@ module Ruport
     def build_table_header
       unless data.column_names.empty? || !options.show_table_headers
         render_row data.column_names, :format_options => options.format_options,
-                                      :formatter => csv_writer
+                                      :format => csv_writer
       end
     end
 

@@ -29,7 +29,7 @@ end
 # formats if needed. It implements the common hooks that will be used
 # across the company's reports. 
 #
-class CompanyPDFBase < Ruport::Formatter::PDF
+class CompanyPDFBase < Ruport::Format::PDF
   def prepare_standard_report 
     # defaults to US Letter, but this overrides
     options.paper_size = "A4"
@@ -45,9 +45,9 @@ class CompanyPDFBase < Ruport::Formatter::PDF
   end
 end
 
-#  This is actual report's formatter
+#  This is actual report's format
 #
-#  It implements the remaining hooks the standard formatter didn't
+#  It implements the remaining hooks the standard format didn't
 #  Notice the footer is not implemented and it doesn't complain.   
 #
 class ClientPDF < CompanyPDFBase

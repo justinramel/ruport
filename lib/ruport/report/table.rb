@@ -7,13 +7,13 @@ module Ruport
 
   # This class implements the basic report for table rows.
   #
-  # == Supported Formatters 
+  # == Supported Formats 
   #  
-  # * Formatter::CSV
-  # * Formatter::Text
-  # * Formatter::HTML
+  # * Format::CSV
+  # * Format::Text
+  # * Format::HTML
   #
-  # == Formatter hooks called (in order)
+  # == Format hooks called (in order)
   #  
   # * build_row
   #
@@ -23,18 +23,18 @@ module Ruport
 
   # This class implements the basic tabular data report for Ruport.
   #
-  # == Supported Formatters 
+  # == Supported Formats
   #  
-  # * Formatter::CSV
-  # * Formatter::Text
-  # * Formatter::HTML
-  # * Formatter::PDF
+  # * Format::CSV
+  # * Format::Text
+  # * Format::HTML
+  # * Format::PDF
   #
   # == Default layout options 
   #  
   # * <tt>show_table_headers</tt> #=> true
   #
-  # == Formatter hooks called (in order)
+  # == Format hooks called (in order)
   #  
   # * prepare_table
   # * build_table_header

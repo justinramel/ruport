@@ -1,5 +1,5 @@
 module Ruport
-  class Formatter::PrawnPDF < Formatter
+  class Format::PrawnPDF < Format
 
     renders :prawn_pdf, :for =>[Report::Row, Report::Table,
                               Report::Group, Report::Grouping]
@@ -16,7 +16,7 @@ module Ruport
     end
 
     def pdf
-      @pdf ||= (options.formatter || ::Prawn::Document.new())
+      @pdf ||= (options.format || ::Prawn::Document.new())
     end
 
     def draw_table(table)
@@ -41,7 +41,7 @@ module Ruport
     end
 
     def build_group_body
-      render_table data, options.to_hash.merge(:formatter => pdf)
+      render_table data, options.to_hash.merge(:format => pdf)
     end
 
     def build_grouping_body

@@ -16,7 +16,7 @@ class Document < Ruport::Report
   end
 end
 
-class DocumentFormatter < Ruport::Formatter::PrawnPDF
+class DocumentFormat < Ruport::Format::PrawnPDF
   renders :prawn_pdf, :for => Document
 
   def build_body

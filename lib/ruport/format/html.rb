@@ -1,6 +1,6 @@
 # Ruport : Extensible Reporting System                                
 #
-# formatter/html.rb provides html formatting for Ruport.
+# format/html.rb provides html formatting for Ruport.
 #     
 # Created by Gregory Brown, late 2005.  Updated numerous times as needed to 
 # fit new formatting systems.
@@ -23,7 +23,7 @@ module Ruport
   #
   # <tt>:style</tt> Used for grouping (:inline, :justified)
   #
-  class Formatter::HTML < Formatter    
+  class Format::HTML < Format
     
     renders :html, :for => [ Report::Row, Report::Table,
                              Report::Group, Report::Grouping ]

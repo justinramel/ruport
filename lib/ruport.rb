@@ -23,7 +23,7 @@ end
 
 
 module Ruport #:nodoc:#
-  class FormatterError < RuntimeError #:nodoc:
+  class FormatError < RuntimeError #:nodoc:
   end
   
   # SystemExtensions lovingly ganked from HighLine 1.2.1
@@ -114,7 +114,7 @@ require "ruport/version"
 require "enumerator"
 require "ruport/report"
 require "ruport/data" 
-require "ruport/formatter" 
+require "ruport/format"
 
 begin
   if Object.const_defined? :ActiveRecord

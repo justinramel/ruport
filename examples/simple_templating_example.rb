@@ -1,6 +1,6 @@
 require "ruport"
 
-Ruport::Formatter::Template.create(:simple) do |format|
+Ruport::Format::Template.create(:simple) do |format|
   format.page = {
     :size   => "LETTER",
     :layout => :landscape
@@ -23,7 +23,7 @@ Ruport::Formatter::Template.create(:simple) do |format|
   }
 end
 
-Ruport::Formatter::Template.create(:derived, :base => :simple) do |t|
+Ruport::Format::Template.create(:derived, :base => :simple) do |t|
   t.table_format[:show_headings] = true
 end
 

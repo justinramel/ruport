@@ -19,7 +19,7 @@ class LinePlotter < Ruport::Report
 
 end
 
-class SVG < Ruport::Formatter
+class SVG < Ruport::Format
   
   renders :svg, :for => LinePlotter
 

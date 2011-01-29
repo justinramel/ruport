@@ -1,6 +1,6 @@
 # Ruport : Extensible Reporting System
 #
-# formatter.rb provides a generalized base class for creating ruport formatters.
+# format.rb provides a generalized base class for creating ruport formats.
 #
 # Created By Gregory Brown
 # Copyright (C) December 2006, All Rights Reserved.
@@ -8,29 +8,29 @@
 # This is free software distributed under the same terms as Ruby 1.8
 # See LICENSE and COPYING for details.
 module Ruport
-  # Formatter is the base class for Ruport's format implementations.
+  # Format is the base class for Ruport's format implementations.
   #
-  # Typically, a Formatter will implement one or more output types,
+  # Typically, a Format will implement one or more output types,
   # and be registered with one or more Report classes.
   #
   # This class provides all the necessary base functionality to make
   # use of Ruport's rendering system, including option handling, data
   # access, and basic output wrapping.
   #
-  # The following example should provide a general idea of how formatters
-  # work, but see the built in formatters for reference implementations.
+  # The following example should provide a general idea of how formats
+  # work, but see the built in formats for reference implementations.
   #
   # A simple Report definition is included to help show the example in
-  # context, but you can also build your own custom interface to formatter
+  # context, but you can also build your own custom interface to format
   # if you wish.
   #
   #   class ReverseReport < Ruport::Report
   #      stage :reversed_header, :reversed_body
   #   end
   #
-  #   class ReversedText < Ruport::Formatter
+  #   class ReversedText < Ruport::Format
   #
-  #      # Hooks formatter up to report
+  #      # Hooks format up to report
   #      renders :txt, :for => ReverseReport
   #
   #      # Implements ReverseReports's :reversed_header hook
@@ -58,17 +58,17 @@ module Ruport
   #   The reversed text will follow
   #   elppa
   #
-  class Formatter
+  class Format
 
     # Provides shortcuts so that you can use Ruport's default rendering
-    # capabilities within your custom formatters
+    # capabilities within your custom formats
     #
     module RenderingTools
       # Uses Report::Row to render the Row object with the
       # given options.
       #
       # Sets the <tt>:io</tt> attribute by default to the existing
-      # formatter's <tt>output</tt> object.
+      # format's <tt>output</tt> object.
       def render_row(row,options={},&block)
         render_helper(Report::Row,row,options,&block)
       end
@@ -76,7 +76,7 @@ module Ruport
       # Uses Report::Table to render the Table object with the
       # given options.
       #
-      # Sets the :io attribute by default to the existing formatter's
+      # Sets the :io attribute by default to the existing format's
       # output object.
       def render_table(table,options={},&block)
         render_helper(Report::Table,table,options,&block)
@@ -85,7 +85,7 @@ module Ruport
       # Uses Report::Group to render the Group object with the
       # given options.
       #
-      # Sets the :io attribute by default to the existing formatter's
+      # Sets the :io attribute by default to the existing format's
       # output object.
       def render_group(group,options={},&block)
         render_helper(Report::Group,group,options,&block)
@@ -94,7 +94,7 @@ module Ruport
       # Uses Report::Grouping to render the Grouping object with the
       # given options.
       #
-      # Sets the :io attribute by default to the existing formatter's
+      # Sets the :io attribute by default to the existing format's
       # output object.
       def render_grouping(grouping,options={},&block)
         render_helper(Report::Grouping,grouping,options,&block)
@@ -117,7 +117,7 @@ module Ruport
                    :io => output,
                    :layout => false }.merge(options)
 
-        options[:io] = "" if self.class.kind_of?(Ruport::Formatter::PDF)
+        options[:io] = "" if self.class.kind_of?(Ruport::Format::PDF)
         rend_klass.render(format,options) do |rend|
           block[rend] if block
         end
@@ -137,7 +137,7 @@ module Ruport
     # by the hash provided.
     attr_writer :options
 
-    # Registers the formatter with one or more Reports.
+    # Registers the format with one or more Reports.
     #
     #   renders :pdf, :for => MyReport
     #   render :text, :for => [MyReport,YourReport]
@@ -152,10 +152,10 @@ module Ruport
       end
     end
 
-    # Allows you to implement stages in your formatter using the
+    # Allows you to implement stages in your format using the
     # following syntax:
     #
-    #   class ReversedText < Ruport::Formatter
+    #   class ReversedText < Ruport::Format
     #      renders :txt, :for => ReverseReport
     #
     #      build :reversed_header do
@@ -172,12 +172,12 @@ module Ruport
       define_method "build_#{stage}", &block
     end
 
-    # Gives a list of formats registered for this formatter.
+    # Gives a list of formats registered for this format.
     def self.formats
       @formats ||= []
     end
 
-    # Returns the template currently set for this formatter.
+    # Returns the template currently set for this format.
     def template
       Template[options.template] rescue nil || Template[:default]
     end
@@ -194,7 +194,7 @@ module Ruport
     end
 
     # Sets the data object, making a local copy using #dup. This may have
-    # a significant overhead for large tables, so formatters which don't
+    # a significant overhead for large tables, so formats which don't
     # modify the data object may wish to override this.
     def data=(val)
       @data = val.dup
@@ -210,7 +210,7 @@ module Ruport
       File.open(filename,"w") {|f| f << output }
     end
 
-    # Use to define that your formatter should save in binary format
+    # Use to define that your format should save in binary format
     def self.save_as_binary_file
       define_method :save_output do |filename|
         File.open(filename,"wb") {|f| f << output }
@@ -234,7 +234,7 @@ module Ruport
     #
     # Example:
     #
-    #   # will only be called if formatter is called for html output
+    #   # will only be called if format is called for html output
     #   html { output << "Look, I'm handling html" }
     #
     def method_missing(id,*args)
@@ -247,9 +247,9 @@ module Ruport
   end
 end
 
-require "ruport/formatter/template"
-require "ruport/formatter/csv"
-require "ruport/formatter/html"
-require "ruport/formatter/text"
-require "ruport/formatter/pdf"
-require "ruport/formatter/prawn_pdf"
+require "ruport/format/template"
+require "ruport/format/csv"
+require "ruport/format/html"
+require "ruport/format/text"
+require "ruport/format/pdf"
+require "ruport/format/prawn_pdf"

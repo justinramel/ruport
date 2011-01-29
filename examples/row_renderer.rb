@@ -12,7 +12,7 @@ class CSV2Something < Ruport::Report
 
 end
 
-class HTML < Ruport::Formatter::HTML
+class HTML < Ruport::Format::HTML
 
   renders :html, :for => CSV2Something
 
@@ -27,7 +27,7 @@ class HTML < Ruport::Formatter::HTML
   end
 end
 
-class Text < Ruport::Formatter::Text
+class Text < Ruport::Format::Text
   renders :text, :for => CSV2Something
 
   def build_table_body

@@ -1,6 +1,6 @@
 # Ruport : Extensible Reporting System                                
 #
-# formatter/text.rb provides text formatting for Ruport.
+# format/text.rb provides text formatting for Ruport.
 #     
 # Created by Gregory Brown, some time around Spring 2006.
 # Copyright (C) 2006-2007, All Rights Reserved.  
@@ -43,7 +43,7 @@ module Ruport
   #
   # <tt>:ignore_table_width:</tt> When set to true, outputs full table without
   # truncating it.  Useful for file output.
-  class Formatter::Text < Formatter
+  class Format::Text < Format
    
     renders [:txt, :text], :for => [ Report::Row, Report::Table,
                                      Report::Group, Report::Grouping ]
@@ -60,7 +60,7 @@ module Ruport
     # calculate_max_col_widths.
     #
     def prepare_table
-      raise Ruport::FormatterError, "Can't output table without " +
+      raise Ruport::FormatError, "Can't output table without " +
         "data or column names." if data.empty? && data.column_names.empty?
       calculate_max_col_widths
     end

@@ -6,7 +6,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), "helpers")
 #  NOTE:
 #
 #  As it stands, we haven't found a more clever way to test the formatting
-#  system than to just create a bunch of renderers and basic formatters for
+#  system than to just create a bunch of renderers and basic formats for
 #  different concepts we're trying to test.  Patches and ideas welcome:
 #
 #  list.rubyreports.org
@@ -21,7 +21,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), "helpers")
 class OldSchoolReport < Ruport::Report
 
   def run
-    formatter do
+    format do
       build_header
       build_body
       build_footer
@@ -35,10 +35,10 @@ class VanillaReport < Ruport::Report
 end
 
 
-# This formatter implements some junk output so we can be sure
+# This format implements some junk output so we can be sure
 # that the hooks are being set up right.  Perhaps these could
 # be replaced by mock objects in the future.
-class DummyText < Ruport::Formatter
+class DummyText < Ruport::Format
   
   renders :text, :for => OldSchoolReport
   
@@ -63,8 +63,8 @@ class DummyText < Ruport::Formatter
   end
 end   
 
-# This formatter modifies the (String) data object passed to it
-class Destructive < Ruport::Formatter
+# This format modifies the (String) data object passed to it
+class Destructive < Ruport::Format
 
   def prepare_document; end
 
@@ -81,12 +81,12 @@ class Destructive < Ruport::Formatter
 end
 
 
-class VanillaBinary < Ruport::Formatter
+class VanillaBinary < Ruport::Format
   renders :bin, :for => VanillaReport
   save_as_binary_file
 end 
 
-class SpecialFinalize < Ruport::Formatter
+class SpecialFinalize < Ruport::Format
   renders :with_finalize, :for => VanillaReport
   
   def finalize
@@ -97,7 +97,7 @@ end
 class TestReport < Test::Unit::TestCase
 
   def teardown
-    Ruport::Formatter::Template.instance_variable_set(:@templates, nil)
+    Ruport::Format::Template.instance_variable_set(:@templates, nil)
   end
 
   def test_trivial
@@ -105,7 +105,7 @@ class TestReport < Test::Unit::TestCase
     assert_equal "header\nbody\nfooter\n", actual
   end          
   
-  context "when running a formatter with custom a finalize method" do
+  context "when running a format with custom a finalize method" do
     def specify_finalize_method_should_be_called
       assert_equal "I has been finalized", 
                    VanillaReport.render_with_finalize
@@ -114,14 +114,14 @@ class TestReport < Test::Unit::TestCase
   
   context "when using templates" do
     def specify_apply_template_should_be_called
-      Ruport::Formatter::Template.create(:stub)
+      Ruport::Format::Template.create(:stub)
       Table(%w[a b c]).to_csv(:template => :stub) do |r| 
-       r.formatter.expects(:apply_template)
+       r.format.expects(:apply_template)
       end  
     end 
 
     def specify_undefined_template_should_throw_sensible_error
-      assert_raises(Ruport::Formatter::TemplateNotDefined) do
+      assert_raises(Ruport::Format::TemplateNotDefined) do
         Table(%w[a b c]).to_csv(:template => :sub)
       end 
     end
@@ -129,26 +129,26 @@ class TestReport < Test::Unit::TestCase
 
   context "when using default templates" do
     def specify_default_template_should_be_called
-      Ruport::Formatter::Template.create(:default)
+      Ruport::Format::Template.create(:default)
       Table(%w[a b c]).to_csv do |r| 
-        r.formatter.expects(:apply_template)
-        assert r.formatter.template == Ruport::Formatter::Template[:default]
+        r.format.expects(:apply_template)
+        assert r.format.template == Ruport::Format::Template[:default]
       end  
     end
 
     def specify_specific_should_override_default
-      Ruport::Formatter::Template.create(:default)
-      Ruport::Formatter::Template.create(:stub)
+      Ruport::Format::Template.create(:default)
+      Ruport::Format::Template.create(:stub)
       Table(%w[a b c]).to_csv(:template => :stub) do |r| 
-        r.formatter.expects(:apply_template)
-        assert r.formatter.template == Ruport::Formatter::Template[:stub]
+        r.format.expects(:apply_template)
+        assert r.format.template == Ruport::Format::Template[:stub]
       end  
     end
 
     def specify_should_be_able_to_disable_templates
-      Ruport::Formatter::Template.create(:default)
+      Ruport::Format::Template.create(:default)
       Table(%w[a b c]).to_csv(:template => false) do |r| 
-        r.formatter.expects(:apply_template).never
+        r.format.expects(:apply_template).never
       end  
     end
   end
@@ -191,24 +191,24 @@ class TestReport < Test::Unit::TestCase
     assert_equal "header\nbody\nfooter\n", actual
   end
 
-  def test_formatter
+  def test_format
     # normal instance mode
     rend = OldSchoolReport.new
-    rend.send(:use_formatter,:text)
+    rend.send(:use_format,:text)
 
-    assert_kind_of Ruport::Formatter, rend.formatter
-    assert_kind_of DummyText, rend.formatter
+    assert_kind_of Ruport::Format, rend.format
+    assert_kind_of DummyText, rend.format
 
     # render mode
     OldSchoolReport.render_text do |r|
-      assert_kind_of Ruport::Formatter, r.formatter
-      assert_kind_of DummyText, r.formatter
+      assert_kind_of Ruport::Format, r.format
+      assert_kind_of DummyText, r.format
     end
 
-    assert_equal "body\n", rend.formatter { build_body }.output
+    assert_equal "body\n", rend.format { build_body }.output
 
-    rend.formatter.clear_output
-    assert_equal "", rend.formatter.output
+    rend.format.clear_output
+    assert_equal "", rend.format.output
   end  
   
   def test_options_act_like_indifferent_hash
@@ -231,9 +231,9 @@ class TestReport < Test::Unit::TestCase
 end
 
 
-class TestFormatterUsingBuild < Test::Unit::TestCase
-  # This formatter uses the build syntax
-  class UsesBuild < Ruport::Formatter
+class TestFormatUsingBuild < Test::Unit::TestCase
+  # This format uses the build syntax
+  class UsesBuild < Ruport::Format
      renders :text_using_build, :for => VanillaReport
      
      build :header do
@@ -253,16 +253,16 @@ class TestFormatterUsingBuild < Test::Unit::TestCase
     assert_equal "header\nbody\nfooter\n",
       VanillaReport.render_text_using_build
     VanillaReport.render_text_using_build do |rend|
-      assert rend.formatter.respond_to?(:build_header)
-      assert rend.formatter.respond_to?(:build_body)
-      assert rend.formatter.respond_to?(:build_footer)
+      assert rend.format.respond_to?(:build_header)
+      assert rend.format.respond_to?(:build_body)
+      assert rend.format.respond_to?(:build_footer)
     end
   end
 end
 
 
-class TestFormatterWithLayout < Test::Unit::TestCase
-  # This formatter is meant to check out a special case in Ruport's renderer,
+class TestFormatWithLayout < Test::Unit::TestCase
+  # This format is meant to check out a special case in Ruport's renderer,
   # in which a layout method is called and yielded to when defined
   class WithLayout < DummyText
      renders :text_with_layout, :for => VanillaReport
@@ -331,7 +331,7 @@ class TestReportWithManyHooks < Test::Unit::TestCase
    }
   end
 
-  def test_formatter_data_dup
+  def test_format_data_dup
     source = "some text"
     result = ReportWithManyHooks.render(:destructive, :data => source)
     assert_equal("You sent some text", result)
@@ -402,7 +402,7 @@ class TestReportWithRunHook < Test::Unit::TestCase
     stage :footer
 
     def run
-      formatter.output << "|"
+      format.output << "|"
       super
     end
 
@@ -431,15 +431,15 @@ class TestWithHelperModule < Test::Unit::TestCase
 
   def test_renderer_helper_module
     ReportWithHelperModule.render_stub do |r|
-      assert_equal "Hello Dolly", r.formatter.say_hello
+      assert_equal "Hello Dolly", r.format.say_hello
     end
   end
 end
 
 
-class TestMultiPurposeFormatter < Test::Unit::TestCase
+class TestMultiPurposeFormat < Test::Unit::TestCase
   # This provides a way to check the multi-format hooks for the Report
-  class MultiPurposeFormatter < Ruport::Formatter 
+  class MultiPurposeFormat < Ruport::Format
 
      renders [:html,:text], :for => VanillaReport
 
@@ -466,10 +466,10 @@ class TestMultiPurposeFormatter < Test::Unit::TestCase
   end
 
 
-  def test_method_missing_hack_formatter
-    assert_equal [:html,:text], MultiPurposeFormatter.formats
+  def test_method_missing_hack_format
+    assert_equal [:html,:text], MultiPurposeFormat.formats
 
-    a = MultiPurposeFormatter.new
+    a = MultiPurposeFormat.new
     a.format = :html
     
     visited = false
@@ -489,8 +489,8 @@ class TestMultiPurposeFormatter < Test::Unit::TestCase
 end
 
 
-class TestFormatterErbHelper < Test::Unit::TestCase
-  class ErbFormatter < Ruport::Formatter
+class TestFormatErbHelper < Test::Unit::TestCase
+  class ErbFormat < Ruport::Format
      
     renders :terb, :for  => VanillaReport
     
@@ -537,10 +537,10 @@ class TestOptionReaders < Test::Unit::TestCase
 
    def setup 
      @renderer = ReportForCheckingOptionReaders.new
-     @renderer.formatter = Ruport::Formatter.new 
+     @renderer.format = Ruport::Format.new
      
      @passive = ReportForCheckingPassivity.new
-     @passive.formatter = Ruport::Formatter.new
+     @passive.format = Ruport::Format.new
    end
    
    def test_options_are_readable
@@ -552,7 +552,7 @@ class TestOptionReaders < Test::Unit::TestCase
      @passive.foo = 5
      assert_equal "apples", @passive.foo
      assert_equal 5, @passive.options.foo
-     assert_equal 5, @passive.formatter.options.foo
+     assert_equal 5, @passive.format.options.foo
    end
      
 end
@@ -566,7 +566,7 @@ class TestSetupOrdering < Test::Unit::TestCase
     end        
   end           
   
-  class BasicFormatter < Ruport::Formatter 
+  class BasicFormat < Ruport::Format
     renders :text, :for => ReportWithSetup
     
     def build_bar
@@ -585,41 +585,41 @@ class TestSetupOrdering < Test::Unit::TestCase
   
 end
 
-class CustomFormatter < Ruport::Formatter
+class CustomFormat < Ruport::Format
   def custom_helper
     output << "Custom!"
   end
 end
 
-class ReportWithAnonymousFormatters < Ruport::Report
+class ReportWithAnonymousFormats < Ruport::Report
 
   stage :report
 
-  formatter :html do
+  format :html do
     build :report do
       output << textile("h1. Hi there")
     end
   end
 
-  formatter :csv do
+  format :csv do
     build :report do
       build_row([1,2,3])
     end
   end
 
-  formatter :pdf do
+  format :pdf do
     build :report do 
       add_text "hello world"
     end
   end
 
-  formatter :text do
+  format :text do
     build :report do
       output << "Hello world"
     end
   end
 
-  formatter :custom => CustomFormatter do
+  format :custom => CustomFormat do
 
     build :report do
       output << "This is "
@@ -630,21 +630,21 @@ class ReportWithAnonymousFormatters < Ruport::Report
 
 end
 
-class TestAnonymousFormatter < Test::Unit::TestCase
-  context "When using built in Ruport formatters" do
+class TestAnonymousFormat < Test::Unit::TestCase
+  context "When using built in Ruport formats" do
 
-    def specify_text_formatter_shortcut_is_accessible
-      assert_equal "Hello world", ReportWithAnonymousFormatters.render_text
-      assert_equal "1,2,3\n", ReportWithAnonymousFormatters.render_csv
-      assert_equal "<h1>Hi there</h1>", ReportWithAnonymousFormatters.render_html
-      assert_not_nil ReportWithAnonymousFormatters.render_pdf
+    def specify_text_format_shortcut_is_accessible
+      assert_equal "Hello world", ReportWithAnonymousFormats.render_text
+      assert_equal "1,2,3\n", ReportWithAnonymousFormats.render_csv
+      assert_equal "<h1>Hi there</h1>", ReportWithAnonymousFormats.render_html
+      assert_not_nil ReportWithAnonymousFormats.render_pdf
     end
     
   end
 
-  context "When using custom formatters" do
-    def specify_custom_formatter_shortcut_is_accessible
-      assert_equal "This is Custom!", ReportWithAnonymousFormatters.render_custom
+  context "When using custom formats" do
+    def specify_custom_format_shortcut_is_accessible
+      assert_equal "This is Custom!", ReportWithAnonymousFormats.render_custom
     end
   end
 
@@ -655,7 +655,7 @@ end
 class MisbehavingReport < Ruport::Report
 end
 
-class MisbehavingFormatter < Ruport::Formatter
+class MisbehavingFormat < Ruport::Format
   renders :text, :for => MisbehavingReport
   def initialize
     super

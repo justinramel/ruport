@@ -12,18 +12,18 @@ module Ruport
   
   # This class implements the basic report for a single group of data.
   #
-  # == Supported Formatters 
+  # == Supported Formats
   #
-  # * Formatter::CSV
-  # * Formatter::Text
-  # * Formatter::HTML
-  # * Formatter::PDF
+  # * Format::CSV
+  # * Format::Text
+  # * Format::HTML
+  # * Format::PDF
   #
   # == Default layout options 
   #
   # * <tt>show_table_headers</tt> #=> true
   #
-  # == Formatter hooks called (in order)
+  # == Format hooks called (in order)
   #
   # * build_group_header
   # * build_group_body
@@ -38,19 +38,19 @@ module Ruport
   # This class implements the basic report for data groupings in Ruport
   # (a collection of Groups).
   #
-  # == Supported Formatters 
+  # == Supported Formats
   #
-  # * Formatter::CSV
-  # * Formatter::Text
-  # * Formatter::HTML
-  # * Formatter::PDF
+  # * Format::CSV
+  # * Format::Text
+  # * Format::HTML
+  # * Format::PDF
   #
   # == Default layout options 
   #
   # * <tt>show_group_headers</tt> #=> true    
   # * <tt>style</tt> #=> :inline  
   #
-  # == Formatter hooks called (in order)
+  # == Format hooks called (in order)
   #
   # * build_grouping_header
   # * build_grouping_body

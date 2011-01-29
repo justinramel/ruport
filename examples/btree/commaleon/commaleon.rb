@@ -10,7 +10,7 @@
 # of CSV dumps to see what has been removed or altered (we don't care
 # about new records )
 #
-# It's a camping app, but the core of it is a report/formatter combo.
+# It's a camping app, but the core of it is a report/format combo.
 # (Marked by %%%%%%%%%%% below)     
 #
 # You'll need the camping omnibus and the F() ruport plugin to run this app.
@@ -51,7 +51,7 @@ module Commaleon::Helpers
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # This is the bulk of the Ruport code in this app
-# (CSVDiffReport and CSVDiffFormatter)
+# (CSVDiffReport and CSVDiffFormat)
 # The rest is just camping.  The interesting thing here is that
 # you could easily define these in another file and just require
 # them here, and use them standalone outside of your web app.      
@@ -63,7 +63,7 @@ module Commaleon::Helpers
       
      # This setup() idiom has become the default way of doing some 
      # manipulations on the data and options before handing off the 
-     # rendering task to the formatters.
+     # rendering task to the formats.
      #   
      # We're using grouping mainly for the report support,
      # and rather than reducing a table, we're building up the
@@ -133,11 +133,11 @@ module Commaleon::Helpers
   #
   # http://stonecode.svnrepository.com/ruport/trac.cgi/wiki/F
   #
-  class CSVDiffFormatter < F([:html,:text,:csv,:pdf], :for => CSVDiffReport)
+  class CSVDiffFormat < F([:html,:text,:csv,:pdf], :for => CSVDiffReport)
     def build_diff_report        
-     # this is using the selective blocks for formatters that implement
+     # this is using the selective blocks for formats that implement
      # more than one format.  The block below will only be called when this
-     # formatter is rendering HTML
+     # format is rendering HTML
      html { gussy_up_html }       
      
      render_grouping( options.diff_report, 

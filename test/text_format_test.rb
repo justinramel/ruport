@@ -4,7 +4,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), "helpers")
 class TestRenderTextTable < Test::Unit::TestCase 
   
   def setup
-    Ruport::Formatter::Template.create(:simple) do |format|
+    Ruport::Format::Template.create(:simple) do |format|
       format.table = {
         :show_headings  => false,
         :width          => 50,
@@ -67,7 +67,7 @@ class TestRenderTextTable < Test::Unit::TestCase
   end 
   
   def test_render_empty_table
-    assert_raise(Ruport::FormatterError) { Table([]).to_text }
+    assert_raise(Ruport::FormatError) { Table([]).to_text }
     assert_nothing_raised { Table(%w[a b c]).to_text }
 
     a = Table(%w[a b c]).to_text
@@ -78,19 +78,19 @@ class TestRenderTextTable < Test::Unit::TestCase
   end
   
   def test_render_with_template
-    formatter = Ruport::Formatter::Text.new
-    formatter.options = Ruport::Report::Options.new
-    formatter.options.template = :simple
-    formatter.apply_template
+    format = Ruport::Format::Text.new
+    format.options = Ruport::Report::Options.new
+    format.options.template = :simple
+    format.apply_template
     
-    assert_equal false, formatter.options.show_table_headers
-    assert_equal 50, formatter.options.table_width
-    assert_equal true, formatter.options.ignore_table_width
+    assert_equal false, format.options.show_table_headers
+    assert_equal 50, format.options.table_width
+    assert_equal true, format.options.ignore_table_width
 
-    assert_equal [5,5,7], formatter.options.max_col_width
-    assert_equal :center, formatter.options.alignment
+    assert_equal [5,5,7], format.options.max_col_width
+    assert_equal :center, format.options.alignment
 
-    assert_equal false, formatter.options.show_group_headers
+    assert_equal false, format.options.show_group_headers
   end
   
   def test_options_hashes_override_template

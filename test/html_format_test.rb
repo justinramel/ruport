@@ -4,7 +4,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), "helpers")
 class TestRenderHTMLTable < Test::Unit::TestCase
   
   def setup
-    Ruport::Formatter::Template.create(:simple) do |format|
+    Ruport::Format::Template.create(:simple) do |format|
       format.table = {
         :show_headings  => false
       }
@@ -16,7 +16,7 @@ class TestRenderHTMLTable < Test::Unit::TestCase
   end
   
   def test_html_table
-    a = Ruport::Formatter::HTML.new
+    a = Ruport::Format::HTML.new
 
     actual = a.html_table { "<tr><td>1</td></tr>\n" }
     assert_equal "<table>\n<tr><td>1</td></tr>\n</table>\n", actual
@@ -46,15 +46,15 @@ class TestRenderHTMLTable < Test::Unit::TestCase
   end
   
   def test_render_with_template
-    formatter = Ruport::Formatter::HTML.new
-    formatter.options = Ruport::Report::Options.new
-    formatter.options.template = :simple
-    formatter.apply_template
+    format = Ruport::Format::HTML.new
+    format.options = Ruport::Report::Options.new
+    format.options.template = :simple
+    format.apply_template
     
-    assert_equal false, formatter.options.show_table_headers
+    assert_equal false, format.options.show_table_headers
 
-    assert_equal :justified, formatter.options.style
-    assert_equal false, formatter.options.show_group_headers
+    assert_equal :justified, format.options.style
+    assert_equal false, format.options.show_group_headers
   end
 
   def test_options_hashes_override_template
@@ -184,7 +184,7 @@ class TestRenderHTMLGrouping < Test::Unit::TestCase
 end  
      
 
-class TestHTMLFormatterHelpers < Test::Unit::TestCase
+class TestHTMLFormatHelpers < Test::Unit::TestCase
   begin
     require "rubygems"
   rescue LoadError
@@ -193,7 +193,7 @@ class TestHTMLFormatterHelpers < Test::Unit::TestCase
   
   def test_textile     
     require "redcloth"
-    a = Ruport::Formatter::HTML.new
+    a = Ruport::Format::HTML.new
     assert_equal "<p><strong>foo</strong></p>", a.textile("*foo*")
   rescue LoadError
     STDERR.puts "Skipping textile test... needs redcloth"

@@ -164,7 +164,7 @@ class Ruport::Report
     # method if the method is defined, otherwise passes <tt>self</tt> as :data
     #
     # The remaining options are converted to a Report::Options object and
-    # are accessible in both the report and formatter.
+    # are accessible in both the report and format.
     #
     #  Example:
     #
@@ -196,8 +196,8 @@ class Ruport::Report
   
   class << self
 
-    # Returns a hash that maps format names to their formatter classes, for use
-    # with the formatter shortcut.  Supported formats are :html, :csv, :pdf, and
+    # Returns a hash that maps format names to their format classes, for use
+    # with the format shortcut.  Supported formats are :html, :csv, :pdf, and
     # :text by default.
     #
     #
@@ -206,8 +206,8 @@ class Ruport::Report
     #   class MyReport < Ruport::Report
     # 
     #     def built_in_formats
-    #       super.extend(:xml => MyXMLFormatter,
-    #                    :json => MyJSONFormatter)
+    #       super.extend(:xml => MyXMLFormat,
+    #                    :json => MyJSONFormat)
     #     end
     #   end 
     #
@@ -215,59 +215,59 @@ class Ruport::Report
     #
     #   class Report < MyReport
     #
-    #     formatter :xml do
+    #     format :xml do
     #       # ...
     #     end
     #
-    #     formatter :json do
+    #     format :json do
     #       # ...
     #     end
     #   end
     #     
     def built_in_formats
-     { :html => Ruport::Formatter::HTML,
-       :csv  => Ruport::Formatter::CSV,
-       :pdf  => Ruport::Formatter::PDF,
-       :text => Ruport::Formatter::Text }
+     { :html => Ruport::Format::HTML,
+       :csv  => Ruport::Format::CSV,
+       :pdf  => Ruport::Format::PDF,
+       :text => Ruport::Format::Text }
     end
 
 
-    # Generates an anonymous formatter class and ties it to the Report.
+    # Generates an anonymous format class and ties it to the Report.
     # This method looks up the built in formats in the hash returned by 
-    # built_in_formats, but also explicitly specify a custom Formatter class to
+    # built_in_formats, but also explicitly specify a custom Format class to
     # subclass from.
     #
     # Sample usage:
     #
-    #   class ReportWithAnonymousFormatters < Ruport::Report
+    #   class ReportWithAnonymousFormat < Ruport::Report
     #   
     #     stage :report
     #   
-    #     formatter :html do
+    #     format :html do
     #       build :report do
     #         output << textile("h1. Hi there")
     #       end
     #     end
     #   
-    #     formatter :csv do
+    #     format :csv do
     #       build :report do
     #         build_row([1,2,3])
     #       end
     #     end
     #   
-    #     formatter :pdf do
+    #     format :pdf do
     #       build :report do
     #         add_text "hello world"
     #       end
     #     end
     #   
-    #     formatter :text do
+    #     format :text do
     #       build :report do
     #         output << "Hello world"
     #       end
     #     end
     #   
-    #     formatter :custom => CustomFormatter do
+    #     format :custom => CustomFormat do
     #   
     #       build :report do
     #         output << "This is "
@@ -278,7 +278,7 @@ class Ruport::Report
     #   
     #   end
     #
-    def formatter(*a,&b)
+    def format(*a,&b)
       case a[0]
       when Symbol
         klass = Class.new(built_in_formats[a[0]])
@@ -293,7 +293,7 @@ class Ruport::Report
     
     attr_accessor :first_stage,:final_stage,:required_options,:stages #:nodoc: 
     
-    # Registers a hook to look for in the Formatter object when the render()
+    # Registers a hook to look for in the Format object when the render()
     # method is called.                           
     #
     # Usage:
@@ -303,7 +303,7 @@ class Ruport::Report
     #      finalize :apple
     #   end
     #
-    #   class MyFormatter < Ruport::Formatter
+    #   class MyFormat < Ruport::Format
     #      renders :example, :for => MyReport
     # 
     #      # other details omitted... 
@@ -314,7 +314,7 @@ class Ruport::Report
     #      end
     #   end  
     #
-    #  If a formatter does not implement this hook, it is simply ignored.
+    #  If a format does not implement this hook, it is simply ignored.
     def finalize(stage)
       if final_stage
         raise StageAlreadyDefinedError, 'final stage already defined'      
@@ -322,7 +322,7 @@ class Ruport::Report
       self.final_stage = stage
     end
     
-    # Registers a hook to look for in the Formatter object when the render()
+    # Registers a hook to look for in the Format object when the render()
     # method is called.                           
     #
     # Usage:
@@ -332,7 +332,7 @@ class Ruport::Report
     #      prepare :apple
     #   end
     #
-    #   class MyFormatter < Ruport::Formatter
+    #   class MyFormat < Ruport::Format
     #      renders :example, :for => MyReport
     #
     #      def prepare_apple
@@ -343,7 +343,7 @@ class Ruport::Report
     #      # other details omitted...
     #   end  
     #
-    #  If a formatter does not implement this hook, it is simply ignored.
+    #  If a format does not implement this hook, it is simply ignored.
     def prepare(stage)
       if first_stage
         raise StageAlreadyDefinedError, "prepare stage already defined"      
@@ -351,7 +351,7 @@ class Ruport::Report
       self.first_stage = stage
     end
     
-    # Registers hooks to look for in the Formatter object when the render()
+    # Registers hooks to look for in the Format object when the render()
     # method is called.                           
     #
     # Usage:
@@ -361,7 +361,7 @@ class Ruport::Report
     #      stage :apple,:banana
     #   end
     #
-    #   class MyFormatter < Ruport::Formatter
+    #   class MyFormat < Ruport::Format
     #      renders :example, :for => MyReport
     #
     #      def build_apple
@@ -377,7 +377,7 @@ class Ruport::Report
     #      # other details omitted...
     #   end  
     #
-    #  If a formatter does not implement these hooks, they are simply ignored.          
+    #  If a format does not implement these hooks, they are simply ignored.
     def stage(*stage_list)
       self.stages ||= []
       stage_list.each { |stage|
@@ -386,7 +386,7 @@ class Ruport::Report
     end
      
     # Defines attribute writers for the Report::Options object shared
-    # between Report and Formatter. Will throw an error if the user does
+    # between Report and Format. Will throw an error if the user does
     # not provide values for these options upon rendering.
     #
     # usage:
@@ -409,16 +409,16 @@ class Ruport::Report
       end
     end
 
-    # Lists the formatters that are currently registered on a report,
+    # Lists the formats that are currently registered on a report,
     # as a hash keyed by format name.
     #
     # Example:
     # 
     #   >> Ruport::Report::Table.formats
-    #   => {:html=>Ruport::Formatter::HTML, 
-    #   ?>  :csv=>Ruport::Formatter::CSV, 
-    #   ?>  :text=>Ruport::Formatter::Text, 
-    #   ?>  :pdf=>Ruport::Formatter::PDF}
+    #   => {:html=>Ruport::Format::HTML,
+    #   ?>  :csv=>Ruport::Format::CSV,
+    #   ?>  :text=>Ruport::Format::Text,
+    #   ?>  :pdf=>Ruport::Format::PDF}
     def formats
       @formats ||= {}
     end
@@ -427,7 +427,7 @@ class Ruport::Report
       formats.include?(format)
     end
     
-    # Builds up a report object, looks up the appropriate formatter,
+    # Builds up a report object, looks up the appropriate format,
     # sets the data and options, and then does the following process:
     #
     #   * If the report contains a module Helpers, mix it in to the instance.
@@ -435,7 +435,7 @@ class Ruport::Report
     #   * If a setup() method is defined on the Report, call it.
     #   * Call the run() method.
     #   * If the :file option is set to a file name, appends output to the file.
-    #   * Return the results of formatter.output
+    #   * Return the results of format.output
     #
     # Please see the examples/ directory for custom report examples, because
     # this is not nearly as complicated as it sounds in most cases.
@@ -466,7 +466,7 @@ class Ruport::Report
     private
     
     # Creates a new instance of the report and sets it to use the specified
-    # formatter (by name).  If a block is given, the report instance is
+    # format (by name).  If a block is given, the report instance is
     # yielded.  
     #
     # Returns the report instance.
@@ -474,10 +474,10 @@ class Ruport::Report
     def build(format, add_options=nil)
       rend = self.new
 
-      rend.send(:use_formatter, format)
+      rend.send(:use_format, format)
       rend.send(:options=, options.dup)
       if rend.class.const_defined? :Helpers
-        rend.formatter.extend(rend.class.const_get(:Helpers))
+        rend.format.extend(rend.class.const_get(:Helpers))
       end
       if add_options.kind_of?(Hash)
         d = add_options.delete(:data)
@@ -493,9 +493,9 @@ class Ruport::Report
     #
     # Example:
     #
-    #   class MyFormatter < Ruport::Formatter
-    #     # formatter code ...
-    #     SomeReport.add_format self, :my_formatter
+    #   class MyFormat < Ruport::Format
+    #     # format code ...
+    #     SomeReport.add_format self, :my_format
     #   end
     #
     def add_format(format,name=nil)
@@ -507,23 +507,23 @@ class Ruport::Report
   # The name of format being used.
   attr_accessor :format  
   
-  # The formatter object being used.
-  attr_writer :formatter  
+  # The format object being used.
+  attr_writer :format
   
-  # The +data+ that has been passed to the active formatter.
+  # The +data+ that has been passed to the active format.
   def data
-    formatter.data
+    format.data
   end
 
-  # Sets +data+ attribute on the active formatter.
+  # Sets +data+ attribute on the active format.
   def data=(val)
-    formatter.data = val
+    format.data = val
   end
 
-  # Report::Options object which is shared with the current formatter.
+  # Report::Options object which is shared with the current format.
   def options
-    yield(formatter.options) if block_given?
-    formatter.options
+    yield(format.options) if block_given?
+    format.options
   end
   
   # Call the _run_ method.  You can override this method in your custom
@@ -533,16 +533,16 @@ class Ruport::Report
   end
  
   def save_output
-    formatter.save_output(options.file) if options.file
+    format.save_output(options.file) if options.file
   end    
 
   def output
-    formatter.output
+    format.output
   end
 
 
 
-  # If an IO object is given, Formatter#output will use it instead of 
+  # If an IO object is given, Format#output will use it instead of
   # the default String.  For Ruport's core reports, we technically
   # can use any object that supports the << method, but it's meant
   # for IO objects such as File or STDOUT
@@ -551,12 +551,12 @@ class Ruport::Report
     options.io=obj    
   end
 
-  # Returns the active formatter.
+  # Returns the active format.
   #
-  # If a block is given, it is evaluated in the context of the formatter.
-  def formatter(&block)
-    @formatter.instance_eval(&block) if block   
-    return @formatter
+  # If a block is given, it is evaluated in the context of the format.
+  def format(&block)
+    @format.instance_eval(&block) if block
+    return @format
   end
 
   # Provides a shortcut to render() to allow
@@ -583,15 +583,15 @@ class Ruport::Report
       end
     end
 
-    if formatter.respond_to?(:apply_template) && options.template != false
-      formatter.apply_template if options.template ||
-        Ruport::Formatter::Template.default
+    if format.respond_to?(:apply_template) && options.template != false
+      format.apply_template if options.template ||
+        Ruport::Format::Template.default
     end
 
     prepare self.class.first_stage if self.class.first_stage
               
-    if formatter.respond_to?(:layout)  && options.layout != false
-      formatter.layout do execute_stages end
+    if format.respond_to?(:layout)  && options.layout != false
+      format.layout do execute_stages end
     else
       execute_stages
     end
@@ -599,7 +599,7 @@ class Ruport::Report
     finalize self.class.final_stage if self.class.final_stage
     maybe :finalize
 
-    return formatter.output
+    return format.output
   end  
   
   def execute_stages
@@ -619,19 +619,19 @@ class Ruport::Report
   end      
   
   def maybe(something)
-    formatter.send something if formatter.respond_to? something
+    format.send something if format.respond_to? something
   end    
 
   def options=(o)
-    formatter.options = o
+    format.options = o
   end
   
-  # Selects a formatter for use by format name
-  def use_formatter(format)
+  # Selects a format for use by format name
+  def use_format(format)
     raise UnknownFormatError unless self.class.formats.include?(format) &&
       self.class.formats[format].respond_to?(:new)
-    self.formatter = self.class.formats[format].new
-    self.formatter.format = format
+    self.format = self.class.formats[format].new
+    self.format.format = format
   end
 
 end

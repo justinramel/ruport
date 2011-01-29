@@ -6,7 +6,7 @@ class RoadmapReport < Ruport::Report
   finalize :roadmap
 end
 
-class HTMLRoadmap < Ruport::Formatter
+class HTMLRoadmap < Ruport::Format
 
   renders :html, :for => RoadmapReport
 
@@ -26,7 +26,7 @@ class HTMLRoadmap < Ruport::Formatter
   
 end
 
-class PDFRoadmap < Ruport::Formatter::PDF
+class PDFRoadmap < Ruport::Format::PDF
 
   renders :pdf, :for => RoadmapReport
 

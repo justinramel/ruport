@@ -1,26 +1,26 @@
 require "ruport"                             
  
 # Reports can be though of as control classes or interface builders.
-# Essentially, they define the options that formatters should implement
+# Essentially, they define the options that formats should implement
 # and the stages of rendering they should handle.  Ruport's formatting
 # system is very forgiving, and the reports do not force their
-# specs onto formatters that are attached to them. 
+# specs onto formats that are attached to them.
 #
 class Document < Ruport::Report
   
   # Will throw an error if these options are not set at rendering time
   required_option :text, :author                                      
   
-  # The report will look for a build_document_body() method on the formatter,
+  # The report will look for a build_document_body() method on the format,
   # but silently skip this stage if it is missing
   stage :document_body
   
-  # The report will look for a finalize_document() method on the formatter,
+  # The report will look for a finalize_document() method on the format,
   # but silently skip this stage if it is missing
   finalize :document                            
 end
   
-# Ruport's PDF Formatter has a large number of helpers that simplify some
+# Ruport's PDF Format has a large number of helpers that simplify some
 # basic PDF operations.  For the things it misses, it also provides a 
 # pdf_writer method that gives you direct access to the underlying PDF::Writer
 # library.  If you frequently find yourself using that feature, you might
@@ -29,7 +29,7 @@ end
 # The helpers demonstrated here are add_text, center_image_in_box, 
 # and render_text_box
 #
-class CenteredPDFTextBox < Ruport::Formatter::PDF
+class CenteredPDFTextBox < Ruport::Format::PDF
 
   renders :pdf, :for => Document
 

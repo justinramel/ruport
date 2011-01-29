@@ -7,24 +7,24 @@
 # This is free software. Please see the LICENSE and COPYING files for details.
 
 
-class Ruport::Formatter::TemplateNotDefined < StandardError; end       
+class Ruport::Format::TemplateNotDefined < StandardError; end
 
 # This class provides templating functionality for Ruport.
 # New templates are created using the Template.create method.
 #
 # Example:
 #
-#   Ruport::Formatter::Template.create(:simple) do |t|
+#   Ruport::Format::Template.create(:simple) do |t|
 #     t.page_layout = :landscape
 #     t.grouping_style = :offset
 #   end
 #
 # You can then determine how the template should be used by defining
-# an <tt>apply_template</tt> method in your formatter.
+# an <tt>apply_template</tt> method in your format.
 #
 # Example:
 #
-#   class Ruport::Formatter::PDF 
+#   class Ruport::Format::PDF
 #     def apply_template
 #       options.paper_orientation = template.page_layout
 #       options.style = template.grouping_style
@@ -32,7 +32,7 @@ class Ruport::Formatter::TemplateNotDefined < StandardError; end
 #   end
 #
 # When you're ready to render the output, you can set the :template as an
-# option for the formatter. Using the template remains optional and you can
+# option for the format. Using the template remains optional and you can
 # still render the report without it.
 #
 # Example:
@@ -40,13 +40,13 @@ class Ruport::Formatter::TemplateNotDefined < StandardError; end
 #   puts g.to_pdf(:template => :simple) #=> uses the template
 #   puts g.to_pdf                       #=> doesn't use the template
 #
-# The built-in formatters all have <tt>apply_template</tt> methods defined that
+# The built-in formats all have <tt>apply_template</tt> methods defined that
 # accept a standard set of options. Each option can be set by supplying a hash
 # with the keys/values listed in the tables below.
 #
 # Example:
 #
-#   Ruport::Formatter::Template.create(:simple) do |format|
+#   Ruport::Format::Template.create(:simple) do |format|
 #     format.page = {
 #       :size   => "LETTER",
 #       :layout => :landscape
@@ -54,19 +54,19 @@ class Ruport::Formatter::TemplateNotDefined < StandardError; end
 #   end
 #
 # If you define a template with the name :default, then it will be used by
-# all formatters unless they either specify a template or explicitly turn off
+# all formats unless they either specify a template or explicitly turn off
 # the templating functionality by using :template => false.
 #
 # Example:
 #
-#   Ruport::Formatter::Template.create(:simple)
-#   Ruport::Formatter::Template.create(:default)
+#   Ruport::Format::Template.create(:simple)
+#   Ruport::Format::Template.create(:default)
 #
 #   puts g.to_pdf                       #=> uses the :default template
 #   puts g.to_pdf(:template => :simple) #=> uses the :simple template
 #   puts g.to_pdf(:template => false)   #=> doesn't use a template
 #
-# ==== PDF Formatter Options
+# ==== PDF Format Options
 #
 #   Option          Key                 Value
 # 
@@ -105,7 +105,7 @@ class Ruport::Formatter::TemplateNotDefined < StandardError; end
 #   grouping        :style              :inline, :justified, :separated, :offset
 #
 #
-# ==== Text Formatter Options
+# ==== Text Format Options
 # 
 #   Option          Key                 Value
 # 
@@ -119,7 +119,7 @@ class Ruport::Formatter::TemplateNotDefined < StandardError; end
 #   grouping        :show_headings      true or false
 #
 #
-# ==== HTML Formatter Options
+# ==== HTML Format Options
 # 
 #   Option          Key                 Value
 # 
@@ -129,7 +129,7 @@ class Ruport::Formatter::TemplateNotDefined < StandardError; end
 #                   :show_headings      true or false
 #
 #
-# ==== CSV Formatter Options
+# ==== CSV Format Options
 # 
 #   Option          Key                 Value
 # 
@@ -142,7 +142,7 @@ class Ruport::Formatter::TemplateNotDefined < StandardError; end
 #                   available to
 #                   FasterCSV.new
 #
-class Ruport::Formatter::Template < Ruport::Report::Options
+class Ruport::Format::Template < Ruport::Report::Options
   
   # Returns all existing templates in a hash keyed by the template names.
   def self.templates
@@ -153,7 +153,7 @@ class Ruport::Formatter::Template < Ruport::Report::Options
   #
   # Example:
   #
-  #   Ruport::Formatter::Template.create(:simple) do |t|
+  #   Ruport::Format::Template.create(:simple) do |t|
   #     t.page_layout = :landscape
   #     t.grouping_style = :offset
   #   end
@@ -163,7 +163,7 @@ class Ruport::Formatter::Template < Ruport::Report::Options
   #
   # Example:
   #
-  #   Ruport::Formatter::Template.create(:derived, :base => :simple)
+  #   Ruport::Format::Template.create(:derived, :base => :simple)
   #
   def self.create(label,opts={})
     if opts[:base]
@@ -177,7 +177,7 @@ class Ruport::Formatter::Template < Ruport::Report::Options
   
   # Returns an existing template with the provided name (label).
   def self.[](label) 
-    templates[label] or raise Ruport::Formatter::TemplateNotDefined
+    templates[label] or raise Ruport::Format::TemplateNotDefined
   end
   
   # Returns the default template.

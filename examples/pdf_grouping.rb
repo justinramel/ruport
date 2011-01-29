@@ -13,7 +13,7 @@ class Document < Ruport::Report
   end
 end
 
-class DocumentFormatter < Ruport::Formatter::PrawnPDF
+class DocumentFormat < Ruport::Format::PrawnPDF
   renders :prawn_pdf, :for => Document
 
   def build_title
@@ -24,11 +24,11 @@ class DocumentFormatter < Ruport::Formatter::PrawnPDF
   end
 
   def build_body
-    render_grouping(data, :formatter => pdf) # It's Nasty!!!
+    render_grouping(data, :format => pdf) # It's Nasty!!!
   end
 end
 
-class DocumentTextFormatter < Ruport::Formatter::Text
+class DocumentTextFormat < Ruport::Format::Text
   renders :text, :for => Document
 
   def build_body

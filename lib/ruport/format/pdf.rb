@@ -1,6 +1,6 @@
 # Ruport : Extensible Reporting System
 #
-# formatter/pdf.rb provides text formatting for Ruport.
+# format/pdf.rb provides text formatting for Ruport.
 #
 # Created by Gregory Brown, February 2006
 # Extended by James Healy, Fall 2006
@@ -18,7 +18,7 @@ module Ruport
   # reports.  It wraps Austin Ziegler's PDF::Writer to provide a higher
   # level interface and provides a number of helpers designed to make
   # generating PDF reports much easier.  You will typically want to build
-  # subclasses of this formatter to customize it as needed.
+  # subclasses of this format to customize it as needed.
   #
   # Many methods forward options to PDF::Writer, so you may wish to consult
   # its API docs.
@@ -39,7 +39,7 @@ module Ruport
   #     Grouping:
   #       * style (:inline,:justified,:separated,:offset)
   #
-  class Formatter::PDF < Formatter
+  class Format::PDF < Format
 
     module PDFWriterProxy #:nodoc:
       def method_missing(id,*args)
@@ -53,7 +53,7 @@ module Ruport
                             Report::Group, Report::Grouping ]
     attr_writer :pdf_writer
 
-    # If you use this macro in your formatter, Ruport will automatically forward
+    # If you use this macro in your format, Ruport will automatically forward
     # calls to the underlying PDF::Writer, for any methods that are not wrapped
     # or redefined.
     def self.proxy_to_pdf_writer
@@ -84,7 +84,7 @@ module Ruport
     # been set yet.
     #    
     def pdf_writer
-      @pdf_writer ||= options.formatter ||
+      @pdf_writer ||= options.format ||
         ::PDF::Writer.new( :paper => options.paper_size || "LETTER",
               :orientation => options.paper_orientation || :portrait)
     end
@@ -109,7 +109,7 @@ module Ruport
 
     # Renders the group as a table for Report::Group.
     def build_group_body
-      render_table data, options.to_hash.merge(:formatter => pdf_writer)
+      render_table data, options.to_hash.merge(:format => pdf_writer)
     end
 
     # Determines which style to use and renders the main body for
@@ -117,7 +117,7 @@ module Ruport
     def build_grouping_body
       case options.style
       when :inline
-        render_inline_grouping(options.to_hash.merge(:formatter => pdf_writer,
+        render_inline_grouping(options.to_hash.merge(:format => pdf_writer,
             :skip_finalize_table => true))
       when :justified, :separated
         render_justified_or_separated_grouping
@@ -276,8 +276,8 @@ module Ruport
     #
     # http://stonecode.svnrepository.com/ruport/trac.cgi/wiki/PdfWriterQuickRef
     def draw_table(table_data, format_opts={})
-      m = "PDF Formatter requires column_names to be defined"
-      raise FormatterError, m if table_data.column_names.empty?
+      m = "PDF Format requires column_names to be defined"
+      raise FormatError, m if table_data.column_names.empty?
 
       table_data.rename_columns { |c| c.to_s }
 
@@ -303,7 +303,7 @@ module Ruport
     end
 
     # This module provides tools to simplify some common drawing operations.
-    # It is included by default in the PDF formatter.
+    # It is included by default in the PDF format.
     #
     module DrawingHelpers
 
@@ -453,7 +453,7 @@ module Ruport
         end
         table << [" "] if options.style == :separated
       end
-      render_table table, options.to_hash.merge(:formatter => pdf_writer)
+      render_table table, options.to_hash.merge(:format => pdf_writer)
     end
 
     def render_offset_grouping
@@ -462,7 +462,7 @@ module Ruport
         table << ["<b>#{name}</b>"]
         group.each {|r| table << r }
       end
-      render_table table, options.to_hash.merge(:formatter => pdf_writer)
+      render_table table, options.to_hash.merge(:format => pdf_writer)
     end
 
     def image_fits_in_box?(img_width,box_width,img_height,box_height)

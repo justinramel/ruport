@@ -13,9 +13,9 @@ Data manipulation is easy as there are standard structures that support
 record, table, and grouping operations.  These all can be extended to
 implement custom behavior as needed.
 
-For common tasks, Ruport provides formatters for CSV, HTML, PDF, and text-
+For common tasks, Ruport provides formats for CSV, HTML, PDF, and text-
 based reports.  However, the real power lies in building custom reports
-and formatters.  The base formatting libraries provide a number
+and formats.  The base formatting libraries provide a number
 of helper functions that will let you build complex reports while maintaining
 a DRY and consistent interface.
 

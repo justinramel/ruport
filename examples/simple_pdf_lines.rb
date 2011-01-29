@@ -6,7 +6,7 @@ class SimpleLines < Ruport::Report
   stage :horizontal_lines
 end
 
-class PDFLines < Ruport::Formatter::PDF
+class PDFLines < Ruport::Format::PDF
   renders :pdf, :for => SimpleLines
 
   def build_horizontal_lines

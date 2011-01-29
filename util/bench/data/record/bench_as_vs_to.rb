@@ -5,7 +5,7 @@ require "ruport"
 require "ruport/util/bench"
 include Ruport::Bench
 
-class MyFormat < Ruport::Formatter;
+class MyFormat < Ruport::Format;
   renders :nothing, :for => Ruport::Report::Row
 end
 

@@ -4,7 +4,7 @@ require File.join(File.expand_path(File.dirname(__FILE__)), "helpers")
 class TestRenderPDFTable < Test::Unit::TestCase
 
   def setup
-    Ruport::Formatter::Template.create(:simple) do |format|
+    Ruport::Format::Template.create(:simple) do |format|
       format.page = {
         :size   => "LETTER",
         :layout => :landscape
@@ -33,7 +33,7 @@ class TestRenderPDFTable < Test::Unit::TestCase
   def test_render_pdf_basic
     # can't render without column names
     data = Table([], :data => [[1,2],[3,4]])
-    assert_raise(Ruport::FormatterError) do
+    assert_raise(Ruport::FormatError) do
       data.to_pdf
     end
 
@@ -62,31 +62,31 @@ class TestRenderPDFTable < Test::Unit::TestCase
   end
 
   def test_render_with_template
-    formatter = Ruport::Formatter::PDF.new
-    formatter.options = Ruport::Report::Options.new
-    formatter.options.template = :simple
-    formatter.apply_template
+    format = Ruport::Format::PDF.new
+    format.options = Ruport::Report::Options.new
+    format.options.template = :simple
+    format.apply_template
 
-    assert_equal "LETTER", formatter.options.paper_size
-    assert_equal :landscape, formatter.options.paper_orientation
+    assert_equal "LETTER", format.options.paper_size
+    assert_equal :landscape, format.options.paper_orientation
 
-    assert_equal 16, formatter.options.text_format[:font_size]
+    assert_equal 16, format.options.text_format[:font_size]
 
-    assert_equal false, formatter.options.table_format[:show_headings]
+    assert_equal false, format.options.table_format[:show_headings]
 
     assert_equal :center,
-      formatter.options.table_format[:column_options][:justification]
+      format.options.table_format[:column_options][:justification]
     assert_equal 50,
-      formatter.options.table_format[:column_options][:width]
+      format.options.table_format[:column_options][:width]
 
     assert_equal :right,
-      formatter.options.table_format[:column_options][:heading][:justification]
+      format.options.table_format[:column_options][:heading][:justification]
     assert_equal false,
-      formatter.options.table_format[:column_options][:heading][:bold]
+      format.options.table_format[:column_options][:heading][:bold]
     assert_equal "Test",
-      formatter.options.table_format[:column_options][:heading][:title]
+      format.options.table_format[:column_options][:heading][:title]
 
-    assert_equal :separated, formatter.options.style
+    assert_equal :separated, format.options.style
   end
 
   def test_options_hashes_override_template
@@ -192,7 +192,7 @@ class TestRenderPDFTable < Test::Unit::TestCase
 
   # draw_table has destructive behavior on nested rendering options (#359)
   def test_draw_table_should_not_destroy_nested_rendering_options
-     f = Ruport::Formatter::PDF.new
+     f = Ruport::Format::PDF.new
      f.options = Ruport::Report::Options.new
      f.options[:table_format] =
        { :column_options => { :heading => {:justification => :center }}}
@@ -240,10 +240,10 @@ class TestRenderPDFGrouping < Test::Unit::TestCase
 
 end
 
-class TestPDFFormatterHelpers < Test::Unit::TestCase
+class TestPDFFormatHelpers < Test::Unit::TestCase
 
   def test_boundaries
-     a = Ruport::Formatter::PDF.new
+     a = Ruport::Format::PDF.new
 
      assert_equal 36, a.left_boundary    
      a.pdf_writer.left_margin = 50 
@@ -264,7 +264,7 @@ class TestPDFFormatterHelpers < Test::Unit::TestCase
   end
 
   def test_move_cursor
-     a = Ruport::Formatter::PDF.new
+     a = Ruport::Format::PDF.new
      a.move_cursor_to(500)
      assert_equal(500,a.cursor)
      a.move_cursor(-25)
@@ -274,7 +274,7 @@ class TestPDFFormatterHelpers < Test::Unit::TestCase
   end
 
   def test_move_up
-    a = Ruport::Formatter::PDF.new
+    a = Ruport::Format::PDF.new
     a.move_cursor_to(500)
     a.move_up(50)
     assert_equal(550,a.cursor)
@@ -283,7 +283,7 @@ class TestPDFFormatterHelpers < Test::Unit::TestCase
   end
 
   def test_padding
-    a = Ruport::Formatter::PDF.new
+    a = Ruport::Format::PDF.new
     a.move_cursor_to(100)
 
     # padding on top and bottom
@@ -318,7 +318,7 @@ class TestPDFFormatterHelpers < Test::Unit::TestCase
   end
 
   def test_draw_text_retains_cursor
-    a = Ruport::Formatter::PDF.new
+    a = Ruport::Format::PDF.new
     a.move_cursor_to(100)
 
     a.draw_text "foo", :left => a.left_boundary
@@ -332,7 +332,7 @@ end
 class SimpleReport < Ruport::Report
   stage :foo
 
-  class PDF < Ruport::Formatter::PDF
+  class PDF < Ruport::Format::PDF
     renders :pdf, :for => SimpleReport
 
     build :foo do
@@ -346,7 +346,7 @@ class TestPDFFinalize < Test::Unit::TestCase
   context "When rendering a PDF" do
     def specify_finalize_should_be_called
       SimpleReport.render_pdf do |r|
-        r.formatter.expects(:render_pdf)
+        r.format.expects(:render_pdf)
       end
     end
   end

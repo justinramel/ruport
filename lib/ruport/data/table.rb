@@ -907,7 +907,7 @@ module Ruport::Data
       from.data.each { |r| self << r.dup }
     end
     
-    # Uses Ruport's built-in text formatter to render this Table into a String.
+    # Uses Ruport's built-in text format to render this Table into a String.
     # 
     # Example:
     # 
