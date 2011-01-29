@@ -1,14 +1,14 @@
 require "rubygems"
 require "ruport"
 
-class RoadmapController < Ruport::Controller
+class RoadmapReport < Ruport::Report
   stage :roadmap_image, :roadmap_text_body
   finalize :roadmap
 end
 
 class HTMLRoadmap < Ruport::Formatter
 
-  renders :html, :for => RoadmapController
+  renders :html, :for => RoadmapReport
 
   def layout
      output << "<html><body>\n"
@@ -28,7 +28,7 @@ end
 
 class PDFRoadmap < Ruport::Formatter::PDF
 
-  renders :pdf, :for => RoadmapController
+  renders :pdf, :for => RoadmapReport
 
   def build_roadmap_image
     center_image_in_box options.image_file, :x => 0, :y => 200, 
@@ -49,6 +49,6 @@ end
 
 formats = [:html, :pdf]
 formats.each do  |format|
-  RoadmapController.render(format, :image_file => "roadmap.png", 
+  RoadmapReport.render(format, :image_file => "roadmap.png",
                                  :file => "roadmap.#{format}")
 end

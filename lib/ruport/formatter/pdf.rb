@@ -15,7 +15,7 @@
 module Ruport
 
   # This class provides PDF output for Ruport's Table, Group, and Grouping
-  # controllers.  It wraps Austin Ziegler's PDF::Writer to provide a higher
+  # reports.  It wraps Austin Ziegler's PDF::Writer to provide a higher
   # level interface and provides a number of helpers designed to make
   # generating PDF reports much easier.  You will typically want to build
   # subclasses of this formatter to customize it as needed.
@@ -49,8 +49,8 @@ module Ruport
       end
     end
 
-    renders :pdf, :for => [ Controller::Row, Controller::Table,
-                            Controller::Group, Controller::Grouping ]
+    renders :pdf, :for => [ Report::Row, Report::Table,
+                            Report::Group, Report::Grouping ]
     attr_writer :pdf_writer
 
     # If you use this macro in your formatter, Ruport will automatically forward
@@ -102,18 +102,18 @@ module Ruport
       render_pdf unless options.skip_finalize_table
     end
 
-    # Generates a header with the group name for Controller::Group.
+    # Generates a header with the group name for Report::Group.
     def build_group_header
       pad(10) { add_text data.name.to_s, :justification => :center }
     end
 
-    # Renders the group as a table for Controller::Group.
+    # Renders the group as a table for Report::Group.
     def build_group_body
       render_table data, options.to_hash.merge(:formatter => pdf_writer)
     end
 
     # Determines which style to use and renders the main body for
-    # Controller::Grouping.
+    # Report::Grouping.
     def build_grouping_body
       case options.style
       when :inline

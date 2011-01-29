@@ -1,16 +1,16 @@
-# controller.rb : General purpose control of formatted data for Ruby Reports
+# report.rb : General purpose control of formatted data for Ruby Reports
 #
 # Copyright December 2006, Gregory Brown.  All Rights Reserved.
 #
 # This is free software. Please see the LICENSE and COPYING files for details.
 
 
-# This class implements the core controller for Ruport's formatting system.
-# It is designed to implement the low level tools necessary to build report
-# controllers for different kinds of tasks.  See Controller::Table for a
-# tabular data controller.  
+# This class implements the core report for Ruport's formatting system.
+# It is designed to implement the low level tools necessary to build
+# reports for different kinds of tasks.  See Report::Table for a
+# tabular data report.
 #
-class Ruport::Controller
+class Ruport::Report
   
   class RequiredOptionNotSet < RuntimeError #:nodoc:
   end
@@ -18,12 +18,12 @@ class Ruport::Controller
   end
   class StageAlreadyDefinedError < RuntimeError #:nodoc: 
   end
-  class ControllerNotSetError < RuntimeError #:nodoc:
+  class ReportNotSetError < RuntimeError #:nodoc:
   end
                                           
   require "ostruct"              
   
-  # Structure for holding controller options.  
+  # Structure for holding report options.
   # Simplified version of HashWithIndifferentAccess
   class Options < OpenStruct 
            
@@ -59,23 +59,23 @@ class Ruport::Controller
   # structures, as well as the renders_with and renders_as_* helpers.
   #
   # You can actually use this with any data structure, it will look for a
-  # renderable_data(format) method to pass to the <tt>controller</tt> you 
+  # renderable_data(format) method to pass to the <tt>report</tt> you
   # specify, but if that is not defined, it will pass <tt>self</tt>.
   #
   # Examples:
   #
-  #   # Render Arrays with Ruport's Row Controller
+  #   # Render Arrays with Ruport's Row Report
   #   class Array
-  #     include Ruport::Controller::Hooks
+  #     include Ruport::Report::Hooks
   #     renders_as_row
   #   end
   #
   #   # >> [1,2,3].as(:csv) 
   #   # => "1,2,3\n" 
   #
-  #   # Render Hashes with Ruport's Row Controller
+  #   # Render Hashes with Ruport's Row Report
   #   class Hash
-  #      include Ruport::Controller::Hooks
+  #      include Ruport::Report::Hooks
   #      renders_as_row
   #      attr_accessor :column_order
   #      def renderable_data(format)
@@ -90,24 +90,24 @@ class Ruport::Controller
   module Hooks 
     module ClassMethods 
       
-      # Tells the class which controller as() will forward to.
+      # Tells the class which report as() will forward to.
       #
       # Usage:
       #
       #   class MyStructure
-      #     include Controller::Hooks
-      #     renders_with CustomController
+      #     include Report::Hooks
+      #     renders_with CustomReport
       #   end
       #   
       # You can also specify default rendering options, which will be used
       # if they are not overriden by the options passed to as().
       #
       #   class MyStructure
-      #     include Controller::Hooks
-      #     renders_with CustomController, :font_size => 14
+      #     include Report::Hooks
+      #     renders_with CustomReport, :font_size => 14
       #   end
-      def renders_with(controller,opts={})
-        @controller = controller
+      def renders_with(report,opts={})
+        @report = report
         @rendering_options=opts
       end  
       
@@ -120,38 +120,38 @@ class Ruport::Controller
         rendering_options.merge(options)
       end 
        
-      # Shortcut for renders_with(Ruport::Controller::Table), you
-      # may wish to override this if you build a custom table controller.
+      # Shortcut for renders_with(Ruport::Report::Table), you
+      # may wish to override this if you build a custom table report.
       def renders_as_table(options={})
-        renders_with Ruport::Controller::Table,options
+        renders_with Ruport::Report::Table,options
       end
       
-      # Shortcut for renders_with(Ruport::Controller::Row), you
-      # may wish to override this if you build a custom row controller. 
+      # Shortcut for renders_with(Ruport::Report::Row), you
+      # may wish to override this if you build a custom row report.
       def renders_as_row(options={})
-        renders_with Ruport::Controller::Row, options
+        renders_with Ruport::Report::Row, options
       end
       
-      # Shortcut for renders_with(Ruport::Controller::Group), you
-      # may wish to override this if you build a custom group controller.  
+      # Shortcut for renders_with(Ruport::Report::Group), you
+      # may wish to override this if you build a custom group report.
       def renders_as_group(options={})
-        renders_with Ruport::Controller::Group,options
+        renders_with Ruport::Report::Group,options
       end 
       
-      # Shortcut for renders_with(Ruport::Controller::Grouping), you
-      # may wish to override this if you build a custom grouping controller.
+      # Shortcut for renders_with(Ruport::Report::Grouping), you
+      # may wish to override this if you build a custom grouping report.
       def renders_as_grouping(options={})
-        renders_with Ruport::Controller::Grouping,options
+        renders_with Ruport::Report::Grouping,options
       end
       
-      # The class of the controller object for the base class.
+      # The class of the report object for the base class.
       #
       # Example:
       # 
-      #   >> Ruport::Data::Table.controller
-      #   => Ruport::Controller::Table
-      def controller
-        @controller
+      #   >> Ruport::Data::Table.report
+      #   => Ruport::Report::Table
+      def report
+        @report
       end
     end
 
@@ -159,25 +159,25 @@ class Ruport::Controller
       base.extend(ClassMethods)
     end      
     
-    # Uses the Controller specified by renders_with to generate formatted
+    # Uses the Report specified by renders_with to generate formatted
     # output.  Passes the return value of the <tt>renderable_data(format)</tt>
     # method if the method is defined, otherwise passes <tt>self</tt> as :data
     #
-    # The remaining options are converted to a Controller::Options object and
-    # are accessible in both the controller and formatter.
+    # The remaining options are converted to a Report::Options object and
+    # are accessible in both the report and formatter.
     #
     #  Example:
     #
     #    table.as(:csv, :show_table_headers => false)
     def as(format,options={}) 
-      controller = self.class.controller
+      report = self.class.report
 
-      raise ControllerNotSetError unless controller
-      raise UnknownFormatError unless controller.known_format?(format)
+      raise ReportNotSetError unless report
+      raise UnknownFormatError unless report.known_format?(format)
 
       options = self.class.merge(options)
 
-      controller.render(format, options) do |rend|
+      report.render(format, options) do |rend|
         rend.data =
           respond_to?(:renderable_data) ? renderable_data(format) : self
 
@@ -203,7 +203,7 @@ class Ruport::Controller
     #
     # Sample override:
     #
-    #   class MyController < Ruport::Controller
+    #   class MyReport < Ruport::Report
     # 
     #     def built_in_formats
     #       super.extend(:xml => MyXMLFormatter,
@@ -213,7 +213,7 @@ class Ruport::Controller
     #
     # This would allow for:
     #
-    #   class ChildController < MyController
+    #   class Report < MyReport
     #
     #     formatter :xml do
     #       # ...
@@ -232,14 +232,14 @@ class Ruport::Controller
     end
 
 
-    # Generates an anonymous formatter class and ties it to the Controller.
+    # Generates an anonymous formatter class and ties it to the Report.
     # This method looks up the built in formats in the hash returned by 
     # built_in_formats, but also explicitly specify a custom Formatter class to
     # subclass from.
     #
     # Sample usage:
     #
-    #   class ControllerWithAnonymousFormatters < Ruport::Controller
+    #   class ReportWithAnonymousFormatters < Ruport::Report
     #   
     #     stage :report
     #   
@@ -298,18 +298,18 @@ class Ruport::Controller
     #
     # Usage:
     #
-    #   class MyController < Ruport::Controller
+    #   class MyReport < Ruport::Report
     #      # other details omitted...
     #      finalize :apple
     #   end
     #
     #   class MyFormatter < Ruport::Formatter
-    #      renders :example, :for => MyController
+    #      renders :example, :for => MyReport
     # 
     #      # other details omitted... 
     #    
     #      def finalize_apple
-    #         # this method will be called when MyController tries to render
+    #         # this method will be called when MyReport tries to render
     #         # the :example format
     #      end
     #   end  
@@ -327,16 +327,16 @@ class Ruport::Controller
     #
     # Usage:
     #
-    #   class MyController < Ruport::Controller
+    #   class MyReport < Ruport::Report
     #      # other details omitted...
     #      prepare :apple
     #   end
     #
     #   class MyFormatter < Ruport::Formatter
-    #      renders :example, :for => MyController
+    #      renders :example, :for => MyReport
     #
     #      def prepare_apple
-    #         # this method will be called when MyController tries to render
+    #         # this method will be called when MyReport tries to render
     #         # the :example format
     #      end        
     #      
@@ -356,21 +356,21 @@ class Ruport::Controller
     #
     # Usage:
     #
-    #   class MyController < Ruport::Controller
+    #   class MyReport < Ruport::Report
     #      # other details omitted...
     #      stage :apple,:banana
     #   end
     #
     #   class MyFormatter < Ruport::Formatter
-    #      renders :example, :for => MyController
+    #      renders :example, :for => MyReport
     #
     #      def build_apple
-    #         # this method will be called when MyController tries to render
+    #         # this method will be called when MyReport tries to render
     #         # the :example format
     #      end 
     #   
     #      def build_banana
-    #         # this method will be called when MyController tries to render
+    #         # this method will be called when MyReport tries to render
     #         # the :example format
     #      end    
     #      
@@ -385,13 +385,13 @@ class Ruport::Controller
       }
     end
      
-    # Defines attribute writers for the Controller::Options object shared
-    # between Controller and Formatter. Will throw an error if the user does
+    # Defines attribute writers for the Report::Options object shared
+    # between Report and Formatter. Will throw an error if the user does
     # not provide values for these options upon rendering.
     #
     # usage:
     #   
-    #   class MyController < Ruport::Controller
+    #   class MyReport < Ruport::Report
     #      required_option :employee_name, :address
     #      # other details omitted
     #   end
@@ -409,12 +409,12 @@ class Ruport::Controller
       end
     end
 
-    # Lists the formatters that are currently registered on a controller,
+    # Lists the formatters that are currently registered on a report,
     # as a hash keyed by format name.
     #
     # Example:
     # 
-    #   >> Ruport::Controller::Table.formats
+    #   >> Ruport::Report::Table.formats
     #   => {:html=>Ruport::Formatter::HTML, 
     #   ?>  :csv=>Ruport::Formatter::CSV, 
     #   ?>  :text=>Ruport::Formatter::Text, 
@@ -427,27 +427,27 @@ class Ruport::Controller
       formats.include?(format)
     end
     
-    # Builds up a controller object, looks up the appropriate formatter,
+    # Builds up a report object, looks up the appropriate formatter,
     # sets the data and options, and then does the following process:
     #
-    #   * If the controller contains a module Helpers, mix it in to the instance.
-    #   * If a block is given, yield the Controller instance.
-    #   * If a setup() method is defined on the Controller, call it.
+    #   * If the report contains a module Helpers, mix it in to the instance.
+    #   * If a block is given, yield the Report instance.
+    #   * If a setup() method is defined on the Report, call it.
     #   * Call the run() method.
     #   * If the :file option is set to a file name, appends output to the file.
     #   * Return the results of formatter.output
     #
-    # Please see the examples/ directory for custom controller examples, because
+    # Please see the examples/ directory for custom report examples, because
     # this is not nearly as complicated as it sounds in most cases.
     def render(format, add_options=nil)
-      controller = build(format, add_options) { |r|
+      report = build(format, add_options) { |r|
         yield(r) if block_given?   
         r.setup if r.respond_to? :setup
       }  
 
-      controller.run
-      controller.save_output
-      return controller.output
+      report.run
+      report.save_output
+      return report.output
     end
 
     # Allows you to set class-wide default options.
@@ -457,7 +457,7 @@ class Ruport::Controller
     #  options { |o| o.style = :justified }
     #
     def options
-      @options ||= Ruport::Controller::Options.new
+      @options ||= Ruport::Report::Options.new
       yield(@options) if block_given?
 
       return @options
@@ -465,11 +465,11 @@ class Ruport::Controller
 
     private
     
-    # Creates a new instance of the controller and sets it to use the specified
-    # formatter (by name).  If a block is given, the controller instance is
+    # Creates a new instance of the report and sets it to use the specified
+    # formatter (by name).  If a block is given, the report instance is
     # yielded.  
     #
-    # Returns the controller instance.
+    # Returns the report instance.
     #
     def build(format, add_options=nil)
       rend = self.new
@@ -489,13 +489,13 @@ class Ruport::Controller
       return rend
     end
     
-    # Allows you to register a format with the controller.
+    # Allows you to register a format with the report.
     #
     # Example:
     #
     #   class MyFormatter < Ruport::Formatter
     #     # formatter code ...
-    #     SomeController.add_format self, :my_formatter
+    #     SomeReport.add_format self, :my_formatter
     #   end
     #
     def add_format(format,name=nil)
@@ -520,14 +520,14 @@ class Ruport::Controller
     formatter.data = val
   end
 
-  # Controller::Options object which is shared with the current formatter.
+  # Report::Options object which is shared with the current formatter.
   def options
     yield(formatter.options) if block_given?
     formatter.options
   end
   
   # Call the _run_ method.  You can override this method in your custom
-  # controller if you need to define other actions.
+  # report if you need to define other actions.
   def run
     _run_
   end
@@ -543,7 +543,7 @@ class Ruport::Controller
 
 
   # If an IO object is given, Formatter#output will use it instead of 
-  # the default String.  For Ruport's core controllers, we technically
+  # the default String.  For Ruport's core reports, we technically
   # can use any object that supports the << method, but it's meant
   # for IO objects such as File or STDOUT
   #
@@ -636,5 +636,5 @@ class Ruport::Controller
 
 end
 
-require "ruport/controller/table"
-require "ruport/controller/grouping"         
+require "ruport/report/table"
+require "ruport/report/grouping"

@@ -263,7 +263,7 @@ module Ruport::Data
     include Enumerable             
     extend FromCSV
 
-    include Ruport::Controller::Hooks
+    include Ruport::Report::Hooks
     renders_as_table
 
     def self.inherited(base) #:nodoc:

@@ -63,7 +63,7 @@ class TestRenderPDFTable < Test::Unit::TestCase
 
   def test_render_with_template
     formatter = Ruport::Formatter::PDF.new
-    formatter.options = Ruport::Controller::Options.new
+    formatter.options = Ruport::Report::Options.new
     formatter.options.template = :simple
     formatter.apply_template
 
@@ -193,7 +193,7 @@ class TestRenderPDFTable < Test::Unit::TestCase
   # draw_table has destructive behavior on nested rendering options (#359)
   def test_draw_table_should_not_destroy_nested_rendering_options
      f = Ruport::Formatter::PDF.new
-     f.options = Ruport::Controller::Options.new
+     f.options = Ruport::Report::Options.new
      f.options[:table_format] =
        { :column_options => { :heading => {:justification => :center }}}
      f.draw_table Table(%w[a b c], :data => [[1,2,3],[4,5,6]])
@@ -329,11 +329,11 @@ class TestPDFFormatterHelpers < Test::Unit::TestCase
   end
 end
 
-class SimpleController < Ruport::Controller
+class SimpleReport < Ruport::Report
   stage :foo
 
   class PDF < Ruport::Formatter::PDF
-    renders :pdf, :for => SimpleController
+    renders :pdf, :for => SimpleReport
 
     build :foo do
       add_text "Blah"
@@ -345,7 +345,7 @@ class TestPDFFinalize < Test::Unit::TestCase
 
   context "When rendering a PDF" do
     def specify_finalize_should_be_called
-      SimpleController.render_pdf do |r|
+      SimpleReport.render_pdf do |r|
         r.formatter.expects(:render_pdf)
       end
     end

@@ -1,6 +1,6 @@
 # Ruport : Extensible Reporting System                                
 #
-# controller/grouping.rb : Group data controller for Ruby Reports
+# report/grouping.rb : Group data report for Ruby Reports
 #
 # Written by Michael Milner, 2007.
 # Copyright (C) 2007, All Rights Reserved
@@ -10,7 +10,7 @@
 #
 module Ruport
   
-  # This class implements the basic controller for a single group of data.
+  # This class implements the basic report for a single group of data.
   #
   # == Supported Formatters 
   #
@@ -29,13 +29,13 @@ module Ruport
   # * build_group_body
   # * build_group_footer
   #
-  class Controller::Group < Controller
+  class Report::Group < Report
     options { |o| o.show_table_headers = true }
 
     stage :group_header, :group_body, :group_footer
   end
 
-  # This class implements the basic controller for data groupings in Ruport
+  # This class implements the basic report for data groupings in Ruport
   # (a collection of Groups).
   #
   # == Supported Formatters 
@@ -57,7 +57,7 @@ module Ruport
   # * build_grouping_footer
   # * finalize_grouping
   #
-  class Controller::Grouping < Controller
+  class Report::Grouping < Report
     options do |o| 
       o.show_group_headers = true 
       o.style = :inline

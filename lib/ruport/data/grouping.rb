@@ -44,7 +44,7 @@ module Ruport::Data
       super
     end
           
-    include Ruport::Controller::Hooks
+    include Ruport::Report::Hooks
     renders_as_group
 
     def self.inherited(base) #:nodoc:
@@ -340,7 +340,7 @@ module Ruport::Data
 
     alias_method :sum, :sigma
 
-    include Ruport::Controller::Hooks
+    include Ruport::Report::Hooks
     renders_as_grouping
 
     def self.inherited(base) #:nodoc:

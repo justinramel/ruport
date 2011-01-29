@@ -11,7 +11,7 @@ module Ruport
   # Formatter is the base class for Ruport's format implementations.
   #
   # Typically, a Formatter will implement one or more output types,
-  # and be registered with one or more Controller classes.
+  # and be registered with one or more Report classes.
   #
   # This class provides all the necessary base functionality to make
   # use of Ruport's rendering system, including option handling, data
@@ -20,35 +20,35 @@ module Ruport
   # The following example should provide a general idea of how formatters
   # work, but see the built in formatters for reference implementations.
   #
-  # A simple Controller definition is included to help show the example in
+  # A simple Report definition is included to help show the example in
   # context, but you can also build your own custom interface to formatter
   # if you wish.
   #
-  #   class ReverseController < Ruport::Controller
+  #   class ReverseReport < Ruport::Report
   #      stage :reversed_header, :reversed_body
   #   end
   #
   #   class ReversedText < Ruport::Formatter
   #
-  #      # Hooks formatter up to controller
-  #      renders :txt, :for => ReverseController
+  #      # Hooks formatter up to report
+  #      renders :txt, :for => ReverseReport
   #
-  #      # Implements ReverseController's :reversed_header hook
-  #      # but can be used by any controller
+  #      # Implements ReverseReports's :reversed_header hook
+  #      # but can be used by any report
   #      def build_reversed_header
   #         output << "#{options.header_text}\n"
   #         output << "The reversed text will follow\n"
   #      end
   #
-  #      # Implements ReverseController's :reversed_body hook
-  #      # but can be used by any controller
+  #      # Implements ReverseReport's :reversed_body hook
+  #      # but can be used by any report
   #      def build_reversed_body
   #         output << data.reverse << "\n"
   #      end
   #
   #   end
   #
-  #   puts ReverseController.render_txt(:data => "apple",
+  #   puts ReverseReport.render_txt(:data => "apple",
   #                                   :header_text => "Hello Mike, Hello Joe!")
   #
   #   -----
@@ -64,40 +64,40 @@ module Ruport
     # capabilities within your custom formatters
     #
     module RenderingTools
-      # Uses Controller::Row to render the Row object with the
+      # Uses Report::Row to render the Row object with the
       # given options.
       #
       # Sets the <tt>:io</tt> attribute by default to the existing
       # formatter's <tt>output</tt> object.
       def render_row(row,options={},&block)
-        render_helper(Controller::Row,row,options,&block)
+        render_helper(Report::Row,row,options,&block)
       end
 
-      # Uses Controller::Table to render the Table object with the
+      # Uses Report::Table to render the Table object with the
       # given options.
       #
       # Sets the :io attribute by default to the existing formatter's
       # output object.
       def render_table(table,options={},&block)
-        render_helper(Controller::Table,table,options,&block)
+        render_helper(Report::Table,table,options,&block)
       end
 
-      # Uses Controller::Group to render the Group object with the
+      # Uses Report::Group to render the Group object with the
       # given options.
       #
       # Sets the :io attribute by default to the existing formatter's
       # output object.
       def render_group(group,options={},&block)
-        render_helper(Controller::Group,group,options,&block)
+        render_helper(Report::Group,group,options,&block)
       end
 
-      # Uses Controller::Grouping to render the Grouping object with the
+      # Uses Report::Grouping to render the Grouping object with the
       # given options.
       #
       # Sets the :io attribute by default to the existing formatter's
       # output object.
       def render_grouping(grouping,options={},&block)
-        render_helper(Controller::Grouping,grouping,options,&block)
+        render_helper(Report::Grouping,grouping,options,&block)
       end
 
       # Iterates through the data in the grouping and renders each group
@@ -127,21 +127,21 @@ module Ruport
 
     include RenderingTools
 
-    # Set by the <tt>:data</tt> attribute from Controller#render
+    # Set by the <tt>:data</tt> attribute from Report#render
     attr_reader :data
 
-    # Set automatically by Controller#render(format) or Controller#render_format
+    # Set automatically by Report#render(format) or Report#render_format
     attr_accessor :format
 
-    # Set automatically by Controller#render as a Controller::Options object built
+    # Set automatically by Report#render as a Report::Options object built
     # by the hash provided.
     attr_writer :options
 
-    # Registers the formatter with one or more Controllers.
+    # Registers the formatter with one or more Reports.
     #
-    #   renders :pdf, :for => MyController
-    #   render :text, :for => [MyController,YourController]
-    #   renders [:csv,:html], :for => YourController
+    #   renders :pdf, :for => MyReport
+    #   render :text, :for => [MyReport,YourReport]
+    #   renders [:csv,:html], :for => YourReport
     #
     def self.renders(fmts,options={})
       Array(fmts).each do |format|
@@ -156,7 +156,7 @@ module Ruport
     # following syntax:
     #
     #   class ReversedText < Ruport::Formatter
-    #      renders :txt, :for => ReverseController
+    #      renders :txt, :for => ReverseReport
     #
     #      build :reversed_header do
     #         output << "#{options.header_text}\n"
@@ -188,9 +188,9 @@ module Ruport
       @output ||= ""
     end
 
-    # Provides a Controller::Options object for storing formatting options.
+    # Provides a Report::Options object for storing formatting options.
     def options
-      @options ||= Controller::Options.new
+      @options ||= Report::Options.new
     end
 
     # Sets the data object, making a local copy using #dup. This may have

@@ -12,7 +12,7 @@
 #
 module Ruport
   # This class produces HTML output for Ruport's Row, Table, Group, and
-  # Grouping controllers.  It can be subclassed, as it has some helper methods
+  # Grouping reports.  It can be subclassed, as it has some helper methods
   # that might be useful for custom output.
   #
   # === Rendering Options
@@ -25,8 +25,8 @@ module Ruport
   #
   class Formatter::HTML < Formatter    
     
-    renders :html, :for => [ Controller::Row, Controller::Table,
-                             Controller::Group, Controller::Grouping ]
+    renders :html, :for => [ Report::Row, Report::Table,
+                             Report::Group, Report::Grouping ]
 
     # Hook for setting available options using a template. See the template 
     # documentation for the available options and their format.
@@ -48,7 +48,7 @@ module Ruport
       end
     end
     
-    # Uses the Row controller to build up the table body.
+    # Uses the Row report to build up the table body.
     # Replaces nil and empty strings with "&nbsp;" 
     def build_table_body
       data.each do |row|
@@ -76,14 +76,14 @@ module Ruport
     end
 
     # Creates the group body. Since group data is a table, just uses the
-    # Table controller.
+    # Table report.
     #
     def build_group_body
       render_table data, options.to_hash
     end
 
     # Generates the body for a grouping. Iterates through the groups and
-    # renders them using the group controller.
+    # renders them using the group report.
     #
     def build_grouping_body
       case options.style

@@ -1,7 +1,7 @@
 $: << File.join(File.dirname(__FILE__), '..', 'lib')
 require "ruport"
 
-class Document < Ruport::Controller
+class Document < Ruport::Report
   stage :title, :body
 
   def setup

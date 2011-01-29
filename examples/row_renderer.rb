@@ -1,6 +1,6 @@
 require "ruport"
 
-class CSV2Something < Ruport::Controller
+class CSV2Something < Ruport::Report
   required_option :csv_file
   stage :table_body
 

@@ -112,7 +112,7 @@ end
 
 require "ruport/version"
 require "enumerator"
-require "ruport/controller" 
+require "ruport/report"
 require "ruport/data" 
 require "ruport/formatter" 
 

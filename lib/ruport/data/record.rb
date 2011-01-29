@@ -233,7 +233,7 @@ module Ruport::Data
     # Internals / Helpers #
     #######################       
 
-    include Ruport::Controller::Hooks
+    include Ruport::Report::Hooks
     renders_as_row
 
     def self.inherited(base) #:nodoc:

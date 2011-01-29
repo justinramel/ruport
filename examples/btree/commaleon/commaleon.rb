@@ -10,7 +10,7 @@
 # of CSV dumps to see what has been removed or altered (we don't care
 # about new records )
 #
-# It's a camping app, but the core of it is a controller/formatter combo. 
+# It's a camping app, but the core of it is a report/formatter combo.
 # (Marked by %%%%%%%%%%% below)     
 #
 # You'll need the camping omnibus and the F() ruport plugin to run this app.
@@ -51,13 +51,13 @@ module Commaleon::Helpers
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # This is the bulk of the Ruport code in this app
-# (CSVDiffController and CSVDiffFormatter)
+# (CSVDiffReport and CSVDiffFormatter)
 # The rest is just camping.  The interesting thing here is that
 # you could easily define these in another file and just require
 # them here, and use them standalone outside of your web app.      
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  class CSVDiffController < Ruport::Controller
+  class CSVDiffReport < Ruport::Report
      stage :diff_report
      option :key, :mcsv, :ccsv  
       
@@ -65,7 +65,7 @@ module Commaleon::Helpers
      # manipulations on the data and options before handing off the 
      # rendering task to the formatters.
      #   
-     # We're using grouping mainly for the controller support,
+     # We're using grouping mainly for the report support,
      # and rather than reducing a table, we're building up the
      # group objects via the helper methods missing_from_compare
      # and different_from_compare
@@ -133,7 +133,7 @@ module Commaleon::Helpers
   #
   # http://stonecode.svnrepository.com/ruport/trac.cgi/wiki/F
   #
-  class CSVDiffFormatter < F([:html,:text,:csv,:pdf], :for => CSVDiffController)
+  class CSVDiffFormatter < F([:html,:text,:csv,:pdf], :for => CSVDiffReport)
     def build_diff_report        
      # this is using the selective blocks for formatters that implement
      # more than one format.  The block below will only be called when this
@@ -154,9 +154,9 @@ module Commaleon::Helpers
   
 end
 
-module Commaleon::Controllers      
-  
-  class Index < R "/"
+module Commaleon::Reports
+
+class Index < R "/"
     def get
       redirect R(CSVDifference)
     end
@@ -183,7 +183,7 @@ module Commaleon::Controllers
     
     def post
       @state.key = @input.csv_id  
-      @table = CSVDiffController.render_html(:key =>  @state.key,
+      @table = CSVDiffReport.render_html(:key =>  @state.key,
                                            :mcsv => @state.mfile,
                                            :ccsv => @state.cfile )  
       render :html_diff   
@@ -207,11 +207,11 @@ module Commaleon::Controllers
        set_headers(format)                        
        case(format)
        when "csv"
-         text CSVDiffController.render_csv(options)  
+         text CSVDiffReport.render_csv(options)
        when "pdf"
-         text CSVDiffController.render_pdf(options.merge(:style => :justified)) 
+         text CSVDiffReport.render_pdf(options.merge(:style => :justified))
        when "txt"
-         text CSVDiffController.render_text(options)
+         text CSVDiffReport.render_text(options)
        else
          text "no format!"
        end                                

@@ -1,8 +1,8 @@
 module Ruport
   class Formatter::PrawnPDF < Formatter
 
-    renders :prawn_pdf, :for =>[Controller::Row, Controller::Table,
-                              Controller::Group, Controller::Grouping]
+    renders :prawn_pdf, :for =>[Report::Row, Report::Table,
+                              Report::Group, Report::Grouping]
 
     attr_accessor :pdf
 

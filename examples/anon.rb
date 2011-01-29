@@ -1,10 +1,10 @@
-# Demonstrates building a parent controller which provides additional 'built in'
+# Demonstrates building a parent report which provides additional 'built in'
 # formats, allowing anonymous formatter support to use the simple interface
 # rather than the :format => FormatterClass approach.
 
 require "ruport"
 module FooCorp
-  class Controller < Ruport::Controller
+  class Report < Ruport::Report
     def self.built_in_formats
       super.merge(:xml => FooCorp::Formatter::XML)
     end
@@ -19,7 +19,7 @@ module FooCorp
     end
   end
 
-  class MyController < FooCorp::Controller
+  class MyReport < FooCorp::Report
     stage :foo
 
     formatter :xml do
@@ -37,7 +37,7 @@ module FooCorp
 end
 
 puts "XML:"
-puts FooCorp::MyController.render_xml
+puts FooCorp::MyReport.render_xml
 
 puts "Text:"
-puts FooCorp::MyController.render_text
+puts FooCorp::MyReport.render_text

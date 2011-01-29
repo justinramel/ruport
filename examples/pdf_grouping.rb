@@ -3,7 +3,7 @@ $: << File.join(File.dirname(__FILE__), '..', 'lib')
 require "ruport"
 require "ruby-debug"
 
-class Document < Ruport::Controller
+class Document < Ruport::Report
   stage :title, :body
 
   def setup
