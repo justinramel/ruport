@@ -327,7 +327,7 @@ class Ruport::Report
   end
   
   # The name of format being used.
-  attr_accessor :format  
+  attr_accessor :format_name
   
   # The format object being used.
   attr_writer :format
@@ -449,11 +449,11 @@ class Ruport::Report
   end
   
   # Selects a format for use by format name
-  def use_format(format)
-    raise UnknownFormatError unless self.class.formats.include?(format) &&
-      self.class.formats[format].respond_to?(:new)
-    self.format = self.class.formats[format].new
-    self.format.format = format
+  def use_format(format_name)
+    raise UnknownFormatError unless self.class.formats.include?(format_name) &&
+      self.class.formats[format_name].respond_to?(:new)
+    self.format = self.class.formats[format_name].new
+    self.format.format = format_name
   end
 
 end
